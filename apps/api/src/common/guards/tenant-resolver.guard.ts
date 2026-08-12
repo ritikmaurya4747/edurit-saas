@@ -1,12 +1,22 @@
-import { Injectable, NestMiddleware, NotFoundException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import { prisma } from "@techrit/database";
+import { SKIP_TENANT_KEY } from "../decorators/skip-tenant.decorator";
 
 @Injectable()
-export class TenantMiddleware implements NestMiddleware {
-  async use(req: any, res: any, next: () => void) {
-        console.log(">>> TENANT MIDDLEWARE RUNNING for:", req.method, req.url);
+export class TenantResolverGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
 
-    const subdomain = this.extractSubdomain(req);
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const skip = this.reflector.getAllAndOverride<boolean>(SKIP_TENANT_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (skip) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const subdomain = this.extractSubdomain(request);
 
     if (!subdomain) {
       throw new NotFoundException("School subdomain not provided");
@@ -21,8 +31,8 @@ export class TenantMiddleware implements NestMiddleware {
       throw new NotFoundException(`School '${subdomain}' not found or inactive`);
     }
 
-    req.tenantSchool = school;
-    next();
+    request.tenantSchool = school;
+    return true;
   }
 
   private extractSubdomain(req: any): string | null {

@@ -10,13 +10,11 @@ export class AuthController {
   async login(@Body() body: unknown, @Req() req: any) {
     const input = LoginSchema.parse(body);
 
-    const tenantSchool = req.tenantSchool ?? req.raw?.tenantSchool;
-
-    if (!tenantSchool) {
+    if (!req.tenantSchool) {
       throw new UnauthorizedException("School context missing");
     }
 
-    return this.authService.login(input, tenantSchool.id);
+    return this.authService.login(input, req.tenantSchool.id);
   }
 
   @Post("refresh")
