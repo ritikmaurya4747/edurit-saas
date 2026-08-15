@@ -24,12 +24,17 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const validPassword = this.verifyPassword(input.password, user.passwordHash);
+    const validPassword = this.verifyPassword(
+      input.password,
+      user.passwordHash,
+    );
     if (!validPassword) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const school = await prisma.school.findUniqueOrThrow({ where: { id: schoolId } });
+    const school = await prisma.school.findUniqueOrThrow({
+      where: { id: schoolId },
+    });
 
     const payload: JwtPayload = {
       sub: user.id,
@@ -45,7 +50,9 @@ export class AuthService {
     });
 
     const refreshTokenRaw = randomBytes(40).toString("hex");
-    const refreshTokenHash = createHash("sha256").update(refreshTokenRaw).digest("hex");
+    const refreshTokenHash = createHash("sha256")
+      .update(refreshTokenRaw)
+      .digest("hex");
 
     await prisma.refreshToken.create({
       data: {
@@ -68,7 +75,9 @@ export class AuthService {
   }
 
   async refresh(refreshTokenRaw: string) {
-    const tokenHash = createHash("sha256").update(refreshTokenRaw).digest("hex");
+    const tokenHash = createHash("sha256")
+      .update(refreshTokenRaw)
+      .digest("hex");
 
     const stored = await prisma.refreshToken.findUnique({
       where: { tokenHash },
@@ -77,6 +86,10 @@ export class AuthService {
 
     if (!stored || stored.revoked || stored.expiresAt < new Date()) {
       throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+    
+    if (!stored.user.isActive || !stored.user.school.isActive) {
+      throw new UnauthorizedException("User or School account is deactivated");
     }
 
     const payload: JwtPayload = {
@@ -96,7 +109,9 @@ export class AuthService {
   }
 
   async logout(refreshTokenRaw: string) {
-    const tokenHash = createHash("sha256").update(refreshTokenRaw).digest("hex");
+    const tokenHash = createHash("sha256")
+      .update(refreshTokenRaw)
+      .digest("hex");
     await prisma.refreshToken.updateMany({
       where: { tokenHash },
       data: { revoked: true },

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { prisma } from "@techrit/database";
 import { SKIP_TENANT_KEY } from "../decorators/skip-tenant.decorator";
@@ -28,7 +33,9 @@ export class TenantResolverGuard implements CanActivate {
     });
 
     if (!school || !school.isActive) {
-      throw new NotFoundException(`School '${subdomain}' not found or inactive`);
+      throw new NotFoundException(
+        `School '${subdomain}' not found or inactive`,
+      );
     }
 
     request.tenantSchool = school;
@@ -39,13 +46,19 @@ export class TenantResolverGuard implements CanActivate {
     const headerSubdomain = req.headers["x-school-subdomain"];
     if (headerSubdomain) return String(headerSubdomain).toLowerCase();
 
-    const host = req.headers["host"] || "";
-    const hostWithoutPort = host.split(":")[0];
-    const parts = hostWithoutPort.split(".");
-
-    if (parts.length >= 2 && parts[0] !== "www" && parts[0] !== "api") {
-      return parts[0].toLowerCase();
+    const origin = req.headers["origin"] || req.headers["referer"] || "";
+    if (origin) {
+      try {
+        const url = new URL(origin);
+        const hostParts = url.hostname.split(".");
+        if (hostParts.length >= 3 && hostParts[0] !== "www") {
+          return hostParts[0].toLowerCase();
+        }
+      } catch (e) {
+        return null;
+      }
     }
+
     return null;
   }
 }

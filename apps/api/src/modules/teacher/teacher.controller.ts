@@ -5,8 +5,9 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CreateTeacherSchema } from "@techrit/types";
-import type { JwtPayload } from "@techrit/types";
+import type { CreateTeacherInput, JwtPayload } from "@techrit/types";
 import { TeacherService } from "./teacher.service";
+import { ZodValidationPipe } from "src/common/pipes/zod-validation.pipe";
 
 @Controller("teachers")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -21,8 +22,10 @@ export class TeacherController {
 
   @Roles("SUPERADMIN")
   @Post()
-  async createTeacher(@Body() body: unknown, @CurrentUser() user: JwtPayload) {
-    const input = CreateTeacherSchema.parse(body);
+  async createTeacher(
+    @Body(new ZodValidationPipe(CreateTeacherSchema)) input: CreateTeacherInput,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.teacherService.createTeacher(input, user.schoolId);
   }
 }

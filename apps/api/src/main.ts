@@ -1,13 +1,16 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
 import fastifyCors from "@fastify/cors";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ trustProxy: true })
+    new FastifyAdapter({ trustProxy: true }),
   );
 
   await app.register(fastifyCors as any, {
@@ -15,8 +18,7 @@ async function bootstrap() {
       if (!origin) return cb(null, true);
       const allowed =
         /\.techrit\.com$/.test(new URL(origin).hostname) ||
-        /\.localhost$/.test(new URL(origin).hostname) ||
-        origin.includes("localhost");
+        /^(localhost|127\.0\.0\.1)$/.test(new URL(origin).hostname);
       cb(null, allowed);
     },
     credentials: true,

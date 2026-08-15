@@ -8,6 +8,7 @@ export class TeacherService {
   async listTeachers(schoolId: string) {
     const db = tenantDb(schoolId);
     return db.teacherProfile.findMany({
+      where: { schoolId },
       include: {
         user: { select: { fullName: true, email: true, isActive: true } },
       },

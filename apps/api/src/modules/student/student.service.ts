@@ -1,13 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { tenantDb } from "@techrit/database";
 import type { CreateStudentInput } from "@techrit/types";
-import { hashPassword, generateTempPassword } from "../../common/utils/password.util";
+import {
+  hashPassword,
+  generateTempPassword,
+} from "../../common/utils/password.util";
 
 @Injectable()
 export class StudentService {
   async listStudents(schoolId: string) {
     const db = tenantDb(schoolId);
     return db.studentProfile.findMany({
+      where: { schoolId },
       include: {
         user: { select: { fullName: true, email: true, isActive: true } },
         classRoom: true,
@@ -17,6 +21,17 @@ export class StudentService {
 
   async createStudent(input: CreateStudentInput, schoolId: string) {
     const db = tenantDb(schoolId);
+
+    const existingUser = await db.user.findUnique({
+      where: { schoolId_email: { schoolId, email: input.email } },
+    });
+
+    if (existingUser) {
+      throw new ConflictException(
+        "A user with this email already exists in this school",
+      );
+    }
+
     const tempPassword = generateTempPassword();
 
     const createdUser = await db.user.create({
@@ -25,7 +40,7 @@ export class StudentService {
         fullName: input.fullName,
         role: "STUDENT",
         passwordHash: hashPassword(tempPassword),
-        schoolId, 
+        schoolId,
         studentProfile: {
           create: {
             schoolId,
