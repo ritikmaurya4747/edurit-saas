@@ -9,7 +9,7 @@ const FEATURES = [
 ]
 
 const STATS = [
-  { value: '500+', label: 'Schools Trust Skolearn' },
+  { value: '500+', label: 'Schools Trust EduRit' },
   { value: '250k', label: 'Active Students' },
   { value: '18k', label: 'Educators' },
   { value: '99.9%', label: 'Uptime SLA' },
@@ -77,7 +77,7 @@ const PRICING = [
 
 const TESTIMONIALS = [
   {
-    quote: "Skolearn transformed how we run Westbrook Academy. Attendance, grades, and fees used to take our admin team all day — now it's done before morning assembly.",
+    quote: "EduRit transformed how we run Westbrook Academy. Attendance, grades, and fees used to take our admin team all day — now it's done before morning assembly.",
     name: 'Dr. Patricia Harris',
     role: 'Principal, Westbrook Academy',
     initials: 'PH',
@@ -129,7 +129,7 @@ const HeroSection = () => {
             </h1>
 
             <p className="text-base md:text-lg text-slate-600 leading-relaxed mb-9 max-w-lg">
-              Skolearn unifies student management, attendance, grades, fees, and communication — giving every school stakeholder a personalized, role-based experience.
+              EduRit unifies student management, attendance, grades, fees, and communication — giving every school stakeholder a personalized, role-based experience.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-12">
@@ -230,7 +230,7 @@ const HeroSection = () => {
           <div className="text-center mb-16">
             <div className="inline-block text-xs font-bold text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full mb-4 uppercase tracking-widest font-['JetBrains_Mono',monospace]">Everything you need</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4 tracking-tight">One platform. Every school need.</h2>
-            <p className="text-base text-slate-500 max-w-lg mx-auto leading-relaxed">From student enrollment to graduation, Skolearn covers every administrative and academic workflow your school depends on.</p>
+            <p className="text-base text-slate-500 max-w-lg mx-auto leading-relaxed">From student enrollment to graduation, EduRit covers every administrative and academic workflow your school depends on.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -368,7 +368,7 @@ const HeroSection = () => {
       <section className="py-24 px-8 bg-gradient-to-br from-blue-900 to-purple-900">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5 tracking-tight leading-tight">Ready to transform your school?</h2>
-          <p className="text-base md:text-lg text-blue-200 mb-10 leading-relaxed">Join 500+ schools already using Skolearn to streamline operations and improve student outcomes. Start your free 30-day trial today.</p>
+          <p className="text-base md:text-lg text-blue-200 mb-10 leading-relaxed">Join 500+ schools already using EduRit to streamline operations and improve student outcomes. Start your free 30-day trial today.</p>
           <div className="flex flex-wrap gap-3 justify-center">
             <button className="px-9 py-4 rounded-xl border-none bg-white text-blue-900 text-base font-extrabold cursor-pointer font-['Outfit',sans-serif] shadow-[0_4px_20px_rgba(0,0,0,0.2)]">Start Free Trial →</button>
             <button className="px-9 py-4 rounded-xl border-[1.5px] border-white/40 bg-transparent text-white text-base font-semibold cursor-pointer font-['Outfit',sans-serif]">Log In</button>

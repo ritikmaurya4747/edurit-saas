@@ -63,7 +63,7 @@ const Payment = () => {
                     <div className="w-20 h-20 rounded-full bg-emerald-50 border-3 border-emerald-300 flex items-center justify-center mx-auto mb-6 text-4xl">✅</div>
                     <h1 className="text-3xl font-extrabold text-slate-800 mb-3">Payment Successful!</h1>
                     <p className="text-sm md:text-base text-slate-500 mb-2 leading-relaxed">
-                        Welcome to Skolearn {plan.name}. Your 30-day free trial has started.
+                        Welcome to EduRit {plan.name}. Your 30-day free trial has started.
                     </p>
                     <div className="bg-white border border-gray-200 rounded-xl p-6 my-7 text-left">
                         <div className="text-sm font-bold text-slate-800 mb-3.5 font-['JetBrains_Mono',monospace] uppercase tracking-wide">Order Summary</div>
@@ -97,7 +97,7 @@ const Payment = () => {
                     <div className="w-8.5 h-8.5 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
                         <span className="text-white text-sm font-extrabold">S</span>
                     </div>
-                    <span className="text-sm font-extrabold text-slate-800">Skolearn Checkout</span>
+                    <span className="text-sm font-extrabold text-slate-800">EduRit Checkout</span>
                 </button>
                 <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-500">🔒</span>
@@ -194,7 +194,7 @@ const Payment = () => {
                         {method === 'bank' && (
                             <div className="bg-slate-50 rounded-xl p-5 border border-gray-200">
                                 <div className="text-sm font-semibold text-slate-800 mb-3">Bank Transfer Details</div>
-                                {[['Bank', 'Silicon Valley Bank'], ['Account Name', 'Skolearn Technologies Inc.'], ['Account Number', '****-****-4400'], ['Routing Number', '****-0047'], ['Reference', `INV-${Date.now().toString().slice(-6)}`]].map(([k, v]) => (
+                                {[['Bank', 'Silicon Valley Bank'], ['Account Name', 'EduRit Technologies Inc.'], ['Account Number', '****-****-4400'], ['Routing Number', '****-0047'], ['Reference', `INV-${Date.now().toString().slice(-6)}`]].map(([k, v]) => (
                                     <div key={k} className="flex justify-between py-2 border-b border-slate-100 text-xs">
                                         <span className="text-slate-500">{k}</span>
                                         <span className="font-semibold text-slate-800 font-['JetBrains_Mono',monospace]">{v}</span>

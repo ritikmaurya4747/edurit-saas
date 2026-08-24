@@ -48,7 +48,7 @@ const Login = () => {
                         <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center">
                             <span className="text-white text-lg font-extrabold">S</span>
                         </div>
-                        <span className="text-white text-lg font-extrabold">Skolearn ERP</span>
+                        <span className="text-white text-lg font-extrabold">EduRit ERP</span>
                     </button>
                 </div>
 
@@ -79,7 +79,7 @@ const Login = () => {
                 {/* Testimonial */}
                 <div className="bg-white/10 border border-white/15 rounded-xl p-5">
                     <p className="text-sm text-blue-200 italic mb-3 leading-relaxed">
-                        "Skolearn cut our admin workload by 40%. Everything from attendance to fee collection just works."
+                        "EduRit cut our admin workload by 40%. Everything from attendance to fee collection just works."
                     </p>
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold text-white">PH</div>

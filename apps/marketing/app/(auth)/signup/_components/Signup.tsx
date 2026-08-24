@@ -56,7 +56,7 @@ const Signup = () => {
                     <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
                         <span className="text-white text-lg font-extrabold">S</span>
                     </div>
-                    <span className="text-white text-lg font-extrabold">Skolearn ERP</span>
+                    <span className="text-white text-lg font-extrabold">EduRit ERP</span>
                 </button>
 
                 <div>
@@ -82,7 +82,7 @@ const Signup = () => {
                     </div>
                 </div>
 
-                <div className="text-xs text-indigo-300/70">© 2026 Skolearn Technologies. All rights reserved.</div>
+                <div className="text-xs text-indigo-300/70">© 2026 EduRit Technologies. All rights reserved.</div>
             </div>
 
             {/* Right — form */}
@@ -93,7 +93,7 @@ const Signup = () => {
                         <>
                             <div className="mb-8">
                                 <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-1.5">Create your account</h1>
-                                <p className="text-sm text-slate-500 m-0">Step 1 of 2 — How will you use Skolearn?</p>
+                                <p className="text-sm text-slate-500 m-0">Step 1 of 2 — How will you use EduRit?</p>
                             </div>
 
                             <div className="flex flex-col gap-3 mb-7">
@@ -168,7 +168,7 @@ const Signup = () => {
                                 <label className="flex gap-2.5 items-start cursor-pointer">
                                     <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="accent-purple-600 mt-0.5 w-3.5 h-3.5 shrink-0" />
                                     <span className="text-xs text-slate-500 leading-relaxed">
-                                        I agree to Skolearn's <a href="#" className="text-purple-600 no-underline">Terms of Service</a> and <a href="#" className="text-purple-600 no-underline">Privacy Policy</a>. I understand my data will be processed in accordance with GDPR guidelines.
+                                        I agree to EduRit's <a href="#" className="text-purple-600 no-underline">Terms of Service</a> and <a href="#" className="text-purple-600 no-underline">Privacy Policy</a>. I understand my data will be processed in accordance with GDPR guidelines.
                                     </span>
                                 </label>
 

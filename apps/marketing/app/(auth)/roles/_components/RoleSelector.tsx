@@ -45,7 +45,7 @@ const RoleSelector = () => {
                         <span className="text-white text-2xl font-extrabold">S</span>
                     </div>
                     <div className="text-left">
-                        <div className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">Skolearn ERP</div>
+                        <div className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">EduRit ERP</div>
                         <div className="text-xs text-slate-500 font-['JetBrains_Mono',monospace]">Westbrook Academy · 2025–2026</div>
                     </div>
                 </div>

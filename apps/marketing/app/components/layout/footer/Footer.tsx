@@ -25,7 +25,7 @@ const Footer =()=> {
                 <span className="text-white text-lg font-extrabold">S</span>
               </div>
               <div>
-                <div className="text-base font-extrabold text-slate-100">Skolearn ERP</div>
+                <div className="text-base font-extrabold text-slate-100">EduRit ERP</div>
                 <div className="text-[9px] text-slate-600 font-['JetBrains_Mono',monospace] uppercase tracking-widest">School Management</div>
               </div>
             </div>
@@ -77,7 +77,7 @@ const Footer =()=> {
       <div className="border-t border-slate-800">
         <div className="max-w-6xl mx-auto px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-slate-600">
-            © 2026 Skolearn Technologies Inc. All rights reserved.
+            © 2026 EduRit Technologies Inc. All rights reserved.
           </div>
           <div className="flex flex-wrap gap-6">
             {['Terms of Service', 'Privacy Policy', 'Cookie Policy', 'GDPR'].map(l => (

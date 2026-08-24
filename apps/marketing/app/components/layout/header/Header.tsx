@@ -17,7 +17,7 @@ const Header = () => {
             <span className="text-white text-lg font-extrabold">S</span>
           </div>
           <div className="text-left">
-            <div className="text-base font-extrabold text-slate-800 leading-none">Skolearn</div>
+            <div className="text-base font-extrabold text-slate-800 leading-none">EduRit</div>
             <div className="text-[9px] text-slate-400 font-['JetBrains_Mono',monospace] uppercase tracking-widest">School ERP</div>
           </div>
         </button>
