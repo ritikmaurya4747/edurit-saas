@@ -14,7 +14,7 @@ const Header = () => {
         {/* Logo */}
         <button className="flex items-center gap-2.5 bg-none border-none cursor-pointer shrink-0">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-[0_2px_8px_rgba(37,99,235,0.3)]">
-            <span className="text-white text-lg font-extrabold">S</span>
+            <span className="text-white text-lg font-extrabold">ER</span>
           </div>
           <div className="text-left">
             <div className="text-base font-extrabold text-slate-800 leading-none">EduRit</div>
