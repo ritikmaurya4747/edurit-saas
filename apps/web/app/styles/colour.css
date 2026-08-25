@@ -1,0 +1,27 @@
+/* Color.css */
+ 
+:root {
+    --primary: #3a526b;
+    --primary-text: #2a3c4c;
+    --low-yellow: #fdb518;
+    --primary-blue: #1d709c;
+    --low-blue: #34ccff;
+    --low-green: #00a5a5;
+    --low-orange: #f5835a;
+    --moderate-red: #cd4f53;
+    --low-purple: #9590e2;
+    --soft-blue: #63b0ed;
+}
+ 
+@theme static {
+    --color-primary: var(--primary);
+    --color-primary-text: var(--primary-text);
+    --color-low-yellow: var(--low-yellow);
+    --color-primary-blue: var(--primary-blue);
+    --color-low-blue: var(--low-blue);
+    --color-low-green: var(--low-green);
+    --color-low-orange: var(--low-orange);
+    --color-moderate-red: var(--moderate-red);
+    --color-low-purple: var(--low-purple);
+    --color-soft-blue: var(--soft-blue);
+}
