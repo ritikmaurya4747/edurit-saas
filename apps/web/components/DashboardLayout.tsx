@@ -9,10 +9,10 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     return (
-        <div className='lg:bg-primary-text'>
+        <div className='lg:bg-[#16233F]'>
             <div className="flex h-screen">
                 {/* Sidebar */}
-                <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:w-64' : 'lg:w-24'} w-0`}>
+                <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:w-60' : 'lg:w-20'} w-0`}>
                     <DashboardSidebar
                         isSidebarOpen={isSidebarOpen}
                         setIsSidebarOpen={setIsSidebarOpen}
@@ -21,9 +21,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </div>
 
                 {/* Main content / Header */}
-                <div className="flex flex-1 flex-col bg-white w-full lg:rounded-tl-[80px] lg:rounded-bl-[80px] text-black">
+                <div className="flex flex-1 flex-col bg-white w-full [80px] text-black">
                     <DashboardHeader />
-                    <main className='flex-1  bg-[#efeff2] lg:rounded-tl-[80px] lg:rounded-bl-[80px] px-5 lg:px-36 py-7 max-sm:py-20 text-primary'>
+                    <main className='flex-1  bg-[#F5F4EF] px-5 lg:p-6 max-sm:py-20 text-primary'>
                         {children}
                     </main>
                 </div>

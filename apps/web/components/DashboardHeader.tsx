@@ -1,0 +1,98 @@
+import SearchIcon from '@repo/ui/icons/SearchIcon'
+
+const DashboardHeader = () => {
+  return (
+    <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
+      <div className='text-primary flex gap-2 text-sm font-semibold leading-5'>
+        <h2 className='text-sm'>Greenwood Public School</h2>
+        {" / "}
+        <h2 className='text-sm'>Dashboard</h2>
+      </div>
+      <div className="flex gap-4 items-center">
+        {/* search input  */}
+        <div className="relative">
+          <input
+            name=""
+            type="search"
+            className="bg-white pl-4 w-72 appearance-none rounded-xl border border-gray-300 px-7 py-2.5 leading-5 text-[#7E7E7E] backdrop-blur-2xl placeholder:text-[#7E7E7E] focus:outline-none  text-base placeholder:text-base"
+            placeholder="Search ..."
+          />
+          <div className="pointer-events-none absolute inset-y-0 right-5 flex items-center">
+            <SearchIcon className="text-gray-400" />
+          </div>
+        </div>
+      </div>
+      {/* Right side content */}
+      <div className="flex items-center gap-3">
+        {/* Notification */}
+        <button
+          type="button"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+
+          {/* Notification dot */}
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+        </button>
+
+        {/* Divider */}
+        <div className="h-8 w-px bg-gray-200" />
+
+        {/* User */}
+        <div className="flex items-center gap-2.5">
+          {/* Avatar */}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-700">
+            RN
+          </div>
+
+          {/* Name + Role */}
+          <div className="hidden sm:block leading-tight">
+            <p className="text-sm font-semibold text-gray-800">
+              Dr. Rajeev Nair
+            </p>
+            <p className="mt-0.5 text-[11px] text-gray-400">
+              Principal
+            </p>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+          aria-label="Logout"
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true">
+            <path d="m16 17 5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"> </path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default DashboardHeader
