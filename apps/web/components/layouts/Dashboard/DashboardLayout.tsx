@@ -23,7 +23,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 {/* Main content / Header */}
                 <div className="flex flex-1 flex-col bg-white w-full [80px] text-black">
                     <DashboardHeader />
-                    <main className='flex-1  bg-[#F5F4EF] px-5 lg:p-6 max-sm:py-20 text-primary'>
+                    <main className='flex-1 overflow-y-auto bg-[#F5F4EF] px-5 lg:p-6 max-sm:py-20 text-primary'>
                         {children}
                     </main>
                 </div>

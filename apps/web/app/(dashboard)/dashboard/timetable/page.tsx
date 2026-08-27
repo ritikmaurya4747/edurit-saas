@@ -1,8 +1,9 @@
 import React from 'react'
+import TimetableLayout from './_components/TimetableLayout'
 
 const page = () => {
   return (
-    <div>Timetable</div>
+    <TimetableLayout />
   )
 }
 
