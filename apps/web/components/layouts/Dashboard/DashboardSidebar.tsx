@@ -4,7 +4,7 @@ import ArrowLeftIcon from "@repo/ui/icons/ArrowLeftIcon";
 import ArrowRightIcon from "@repo/ui/icons/ArrowRightIcon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sidebarData } from "../config/sidebarData";
+import { sidebarData } from "../../../config/sidebarData";
 
 interface DashboardSidebarProps {
   isSidebarOpen: boolean;
