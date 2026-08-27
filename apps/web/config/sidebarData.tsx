@@ -1,62 +1,50 @@
 import BuildingIcon from "@repo/ui/icons/BuildingIcon";
+import DashboardIcon from "@repo/ui/icons/DashboardIcon";
 import DocumentIcon from "@repo/ui/icons/DocumentIcon";
-import GalleryIcon from "@repo/ui/icons/GalleryIcon";
-import HomeIcon from "@repo/ui/icons/HomeIcon";
 import PocketIcon from "@repo/ui/icons/PocketIcon ";
 import RecycleIcon from "@repo/ui/icons/RecycleIcon";
 import SettingsIcon from "@repo/ui/icons/SettingsIcon";
 import ShoppingBagIcon from "@repo/ui/icons/ShoppingBagIcon";
 import TrendingUpIcon from "@repo/ui/icons/TrendingUpIcon";
-import UserIcon from "@repo/ui/icons/UserIcon";
 
 export const sidebarData = [
   {
-    icon: <HomeIcon />,
-    label: "Dashboard", url: "/#"
+    icon: <DashboardIcon className="w-6 h-6" />,
+    label: "Dashboard", url: "/dashboard"
   },
   {
-    icon: <BuildingIcon />,
+    icon: <BuildingIcon className="w-6 h-6" />,
     label: "Timetable",
-    url: "/#",
+    url: "/dashboard/timetable",
   },
   {
-    icon: <DocumentIcon />,
+    icon: <DocumentIcon className="w-6 h-6" />,
     label: "Homework",
-    url: "/#"
+    url: "/dashboard/homework"
   },
   {
-    icon: <RecycleIcon />,
+    icon: <RecycleIcon className="w-6 h-6" />,
     label: "Report Cards",
-    url: "/admin-dashboard/panels"
+    url: "/dashboard/report-cards"
   },
   {
-    icon: <ShoppingBagIcon />,
+    icon: <ShoppingBagIcon className="w-6 h-6" />,
     label: "Desk Slips",
-    url: "/admin-dashboard/cbLibraries/libraries/index",
+    url: "/dashboard/desk-slips",
   },
   {
-    icon: <PocketIcon />,
+    icon: <PocketIcon className="w-6 h-6" />,
     label: "Admissions",
-    url: "/#",
+    url: "/dashboard/admissions",
   },
   {
-    icon: <TrendingUpIcon />,
+    icon: <TrendingUpIcon className="w-6 h-6" />,
     label: "Fee Management",
-    url: "/#",
+    url: "/dashboard/fee-management",
   },
   {
-    icon: <GalleryIcon />,
-    label: "Media Manager",
-    url: "/#",
-  },
-  {
-    icon: <UserIcon />,
-    label: "Approvals (0)",
-    url: "/#",
-  },
-  {
-    icon: <SettingsIcon />,
+    icon: <SettingsIcon className="w-6 h-6"/>,
     label: "Attendance",
-    url: "/#",
+    url: "/dashboard/attendance",
   },
 ];

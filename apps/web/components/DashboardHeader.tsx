@@ -1,3 +1,5 @@
+import AlertIcon from '@repo/ui/icons/AlertIcon'
+import LogoutIcon from '@repo/ui/icons/LogoutIcon'
 import SearchIcon from '@repo/ui/icons/SearchIcon'
 
 const DashboardHeader = () => {
@@ -22,6 +24,7 @@ const DashboardHeader = () => {
           </div>
         </div>
       </div>
+      
       {/* Right side content */}
       <div className="flex items-center gap-3">
         {/* Notification */}
@@ -29,20 +32,7 @@ const DashboardHeader = () => {
           type="button"
           className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
+          <AlertIcon/>
 
           {/* Notification dot */}
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
@@ -75,20 +65,7 @@ const DashboardHeader = () => {
           className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
           aria-label="Logout"
         >
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true">
-            <path d="m16 17 5-5-5-5"></path>
-            <path d="M21 12H9"></path>
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"> </path>
-          </svg>
+          <LogoutIcon/>
         </button>
       </div>
     </div>
