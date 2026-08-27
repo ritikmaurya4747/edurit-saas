@@ -1,11 +1,8 @@
-import AdminIcon from '@repo/ui/icons/AdminIcon'
-import ArrowDownIcon from '@repo/ui/icons/ArrowDownIcon'
-import CommentsIcon from '@repo/ui/icons/CommentsIcon'
-import HelpIcon from '@repo/ui/icons/HelpIcon'
+import AlertIcon from '@repo/ui/icons/AlertIcon'
+import ArrowLeftIcon from '@repo/ui/icons/ArrowLeftIcon'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-// import { Button } from '../../forms/Button'
 
 const MobileHeader = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -29,23 +26,23 @@ const MobileHeader = () => {
                             href="#"
                             className="bg-[#00a986] p-2 max-sm:px-4 px-5 sm:py-3 flex items-center gap-1.5 justify-center rounded-full"
                         >
-                            <HelpIcon className="w-5 h-5" />
+                            <AlertIcon className="w-5 h-5" />
                             <span className='text-white text-sm font-semibold max-sm:hidden'>Get Help </span>
                         </Link>
                         <Link
                             href="/feedback"
                             className="bg-[#00a986] p-2 max-sm:px-4 px-5 sm:py-3 flex items-center gap-1.5 justify-center rounded-full"
                         >
-                            <CommentsIcon />
+                            <AlertIcon />
                             <span className='text-white text-sm font-semibold max-sm:hidden'>Feedback </span>
                         </Link>
 
                         <div className="relative">
                             <button className="flex items-center gap-1 px-0 py-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                                 <div className="bg-gray-200 rounded-full p-2 cursor-pointer">
-                                    <AdminIcon className='text-gray-500 w-4 h-4' />
+                                    <AlertIcon className='text-gray-500 w-4 h-4' />
                                 </div>
-                                <ArrowDownIcon
+                                <ArrowLeftIcon
                                     className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`}
                                 />
                             </button>

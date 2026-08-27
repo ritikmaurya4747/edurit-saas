@@ -49,48 +49,60 @@ const DashboardSidebar = ({
         </div>
 
         {/* Nav Items */}
-        <div className="flex flex-col gap-1 mt-5 px-2">
-          {sidebarData.map((item, index) => {
-            const isActive = pathname === item.url;
+        <div className="flex flex-col mt-5 overflow-y-auto px-2">
+          {sidebarData.map((section, sectionIndex) => (
+            <div key={section.section} className={sectionIndex === 0 ? "" : "mt-6"}>
+              {isSidebarOpen && (
+                <p className="px-4 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  {section.section}
+                </p>
+              )}
 
-            return (
-              <Link
-                key={index}
-                href={item.url || "#"}
-                className={`group relative flex items-center border-l-4 rounded-lg transition-colors duration-200 ${
-                  isSidebarOpen
-                    ? "gap-3 pl-4 pr-4 py-2.5 "
-                    : "justify-center py-2.5"
-                } ${
-                  isActive
-                    ? "border-[#c8860f] bg-white/10"
-                    : "border-transparent hover:bg-white/5"
-                }`}
-              >
-                <span
-                  className={`flex items-center justify-center shrink-0 w-5 h-5 transition-colors duration-200 ${
-                    isActive
-                      ? "text-white"
-                      : "text-gray-400 group-hover:text-white"
-                  }`}
-                >
-                  {item.icon}
-                </span>
+              <div className="flex flex-col gap-1">
+                {section.items.map((item, index) => {
+                  const isActive = pathname === item.url;
 
-                {isSidebarOpen && (
-                  <p
-                    className={`text-sm whitespace-nowrap transition-colors duration-200 ${
-                      isActive
-                        ? "font-semibold text-white"
-                        : "font-medium text-gray-400 group-hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </p>
-                )}
-              </Link>
-            );
-          })}
+                  return (
+                    <Link
+                      key={index}
+                      href={item.url || "#"}
+                      className={`group relative flex items-center border-l-4 rounded-lg transition-colors duration-200 ${
+                        isSidebarOpen
+                          ? "gap-3 pl-4 pr-4 py-2.5"
+                          : "justify-center py-2.5"
+                      } ${
+                        isActive
+                          ? "border-[#c8860f] bg-white/10"
+                          : "border-transparent hover:bg-white/5"
+                      }`}
+                    >
+                      <span
+                        className={`flex items-center justify-center shrink-0 w-5 h-5 transition-colors duration-200 ${
+                          isActive
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-white"
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+
+                      {isSidebarOpen && (
+                        <p
+                          className={`text-sm whitespace-nowrap transition-colors duration-200 ${
+                            isActive
+                              ? "font-semibold text-white"
+                              : "font-medium text-gray-400 group-hover:text-white"
+                          }`}
+                        >
+                          {item.label}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
