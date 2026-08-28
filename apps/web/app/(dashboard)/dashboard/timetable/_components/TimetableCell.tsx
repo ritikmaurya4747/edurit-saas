@@ -3,11 +3,11 @@ interface TimetableCellProps {
     subject: string;
     teacher: string;
     color: string;
-    isConflict?: boolean; // Optional boolean
+    isConflict?: boolean; 
 }
 const TimetableCell = ({ subject, teacher, color, isConflict }: TimetableCellProps) => {
     return (
-        <div className={`p-4 flex flex-col justify-center ${isConflict ? 'bg-red-50' : 'bg-white'}`}>
+        <div className={`p-2.5 flex flex-col justify-center ${isConflict ? 'bg-red-50' : 'bg-white'}`}>
             <div className="flex items-center gap-2 mb-1">
                 <span className={`w-2 h-2 rounded-full ${color}`}></span>
                 <span className="font-bold text-sm text-gray-800 flex items-center gap-1.5">

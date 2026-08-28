@@ -1,8 +1,9 @@
 import React from 'react'
+import ReportCardLayout from './_components/ReportCardLayout'
 
 const page = () => {
   return (
-    <div>Report Cards</div>
+    <ReportCardLayout/>
   )
 }
 

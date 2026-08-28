@@ -1,8 +1,8 @@
-import React from 'react'
+import AdmissionsLayout from './_components/AdmissionsLayout'
 
 const page = () => {
   return (
-    <div>Admissions</div>
+    <AdmissionsLayout />
   )
 }
 

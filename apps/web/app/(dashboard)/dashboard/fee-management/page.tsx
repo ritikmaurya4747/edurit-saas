@@ -1,8 +1,9 @@
 import React from 'react'
+import FeePage from './_components/FeePage'
 
 const page = () => {
   return (
-    <div>Fee Management</div>
+    <FeePage />
   )
 }
 

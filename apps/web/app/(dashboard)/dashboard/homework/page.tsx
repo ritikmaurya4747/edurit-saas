@@ -1,8 +1,9 @@
 import React from 'react'
+import HomeworkLayout from './_components/HomeworkLayout'
 
 const page = () => {
   return (
-    <div>Homework</div>
+    <HomeworkLayout/>
   )
 }
 
