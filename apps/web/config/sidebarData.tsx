@@ -6,6 +6,7 @@ import {
   ClipboardIcon,
   CreditCardIcon,
   DashboardIcon,
+  SettingsIcon,
   UserCheckIcon,
   UserPlusIcon,
   UsersIcon,
@@ -83,7 +84,17 @@ export const sidebarData = [
       {
         icon: <AlertIcon className="w-6 h-6" />,
         label: "Notices",
-        url: "/dashboard/notices",
+        url: "/dashboard/notice",
+      },
+    ],
+  },
+  {
+    section: "Administration",
+    items: [
+      {
+        icon: <SettingsIcon className="w-6 h-6" />, 
+        label: "Roles & Permissions",
+        url: "/dashboard/roles-permissions",
       },
     ],
   },

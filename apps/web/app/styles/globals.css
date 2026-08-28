@@ -60,3 +60,17 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
 }
+/* Completely Hide Scrollbar Globally but keep scrolling functional */
+
+/* Chrome, Safari, aur Edge (Chromium) ke liye */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Firefox, IE, aur purane Edge ke liye */
+* {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
