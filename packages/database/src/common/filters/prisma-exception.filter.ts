@@ -19,27 +19,22 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     let errorCode = `DB_${exception.code}`;
 
     switch (exception.code) {
-      case 'P2002': // Unique constraint failed
+      case 'P2002':
         status = HttpStatus.CONFLICT;
-        const target = (exception.meta?.target as string[]) || [];
-        message = `Duplicate value error on field(s): ${target.join(', ')}`;
-        errorCode = 'UNIQUE_CONSTRAINT_VIOLATION';
+        message = `Unique constraint failed on field(s): ${(exception.meta?.target as string[])?.join(', ')}`;
+        errorCode = 'DUPLICATE_RECORD';
         break;
-
-      case 'P2025': // Record not found
+      case 'P2025':
         status = HttpStatus.NOT_FOUND;
-        message = 'Requested record was not found';
+        message = 'Requested record not found';
         errorCode = 'RECORD_NOT_FOUND';
         break;
-
-      case 'P2003': // Foreign key constraint failed
+      case 'P2003':
         status = HttpStatus.BAD_REQUEST;
-        message = 'Foreign key constraint failed. Related entity does not exist.';
+        message = 'Foreign key constraint violation';
         errorCode = 'FOREIGN_KEY_VIOLATION';
         break;
-
       default:
-        status = HttpStatus.BAD_REQUEST;
         message = exception.message.replace(/(\r\n|\n|\r)/gm, '');
         break;
     }
