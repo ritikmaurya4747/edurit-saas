@@ -19,6 +19,7 @@ const AwardIcon = ({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      color={color}
       {...rest}
     >
       <circle cx="12" cy="8" r="7" />

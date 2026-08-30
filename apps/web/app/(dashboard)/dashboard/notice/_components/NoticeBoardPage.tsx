@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { ColumnDef, DataTable } from '@repo/ui';
 import { 
-  NoticeRecord, initialNotices, NoticeStatus, 
+  NoticeRecord, initialNotices,  
   NoticeAudience, NoticePriority 
 } from '../_data/noticeData';
 

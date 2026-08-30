@@ -19,6 +19,7 @@ const CalendarIcon = ({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      color={color}
       {...rest}
     >
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

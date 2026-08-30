@@ -1,8 +1,11 @@
-
+interface HamburgerIconProps {
+  size?: number;
+  className?: string;
+}
 const HamburgerMenu = ({
     size = 24,
     className = ''
-}) => {
+}:HamburgerIconProps) => {
     return (
         <svg
             width={size}

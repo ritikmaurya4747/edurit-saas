@@ -20,6 +20,7 @@ const DashboardIcon = ({
       strokeLinejoin="round"
       aria-hidden="true"
       className={className}
+      color={color}
       {...rest}
     >
       <rect width="7" height="9" x="3" y="3" rx="1"></rect>

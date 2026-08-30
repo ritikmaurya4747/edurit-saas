@@ -1,10 +1,6 @@
 import React from 'react';
 
-interface AdmissionsHeaderProps {
-  totalCount?: number;
-}
-
-const AdmissionsHeader = ({ totalCount = 7 }: AdmissionsHeaderProps) => {
+const AdmissionsHeader = () => {
   return (
     <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>

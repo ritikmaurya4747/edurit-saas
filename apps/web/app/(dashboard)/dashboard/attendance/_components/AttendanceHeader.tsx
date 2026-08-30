@@ -1,5 +1,5 @@
 import React from 'react';
-import { Student } from './attendanceData';
+import { Student } from '../_data/attendanceData';
 
 interface HeaderProps {
   students: Student[];

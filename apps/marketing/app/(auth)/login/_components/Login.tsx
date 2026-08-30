@@ -1,5 +1,29 @@
 "use client"
 import { useState } from 'react'
+import type { ReactNode, FormEvent, ChangeEvent, CSSProperties } from 'react'
+
+interface FieldProps {
+    label: string
+    type: string
+    value: string
+    onChange: (v: string) => void
+    placeholder: string
+    right?: ReactNode
+}
+
+const Field = ({ label, type, value, onChange, placeholder, right }: FieldProps) => (
+    <div className="mb-4.5">
+        <label className="text-sm font-semibold text-gray-700 block mb-1.5">{label}</label>
+        <div className="relative">
+            <input
+                type={type} value={value} placeholder={placeholder}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+                className={`w-full px-4 py-2.5 border-[1.5px] border-gray-200 rounded-xl text-sm text-slate-800 outline-none font-['Outfit',sans-serif] transition-colors duration-150 box-border focus:border-blue-600 ${right ? 'pr-11' : 'pr-4'}`}
+            />
+            {right && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{right}</div>}
+        </div>
+    </div>
+)
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -9,30 +33,13 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
         if (!email || !password) { setError('Please fill in all fields.'); return }
         setError('')
         setLoading(true)
         setTimeout(() => { setLoading(false) }, 1200)
     }
-
-    const Field = ({ label, type, value, onChange, placeholder, right }: {
-        label: string; type: string; value: string; onChange: (v: string) => void;
-        placeholder: string; right?: React.ReactNode
-    }) => (
-        <div className="mb-4.5">
-            <label className="text-sm font-semibold text-gray-700 block mb-1.5">{label}</label>
-            <div className="relative">
-                <input
-                    type={type} value={value} placeholder={placeholder}
-                    onChange={e => onChange(e.target.value)}
-                    className={`w-full px-4 py-2.5 border-[1.5px] border-gray-200 rounded-xl text-sm text-slate-800 outline-none font-['Outfit',sans-serif] transition-colors duration-150 box-border focus:border-blue-600 ${right ? 'pr-11' : 'pr-4'}`}
-                />
-                {right && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{right}</div>}
-            </div>
-        </div>
-    )
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 font-['Outfit',sans-serif]">
@@ -55,7 +62,7 @@ const Login = () => {
                 {/* Center content */}
                 <div>
                     <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-5">
-                        Welcome back to your school's command center
+                        Welcome back to your school&apos;s command center
                     </h2>
                     <p className="text-sm md:text-base text-blue-200 leading-relaxed mb-10">
                         Everything your school needs — students, teachers, parents, and administrators — working in perfect sync.
@@ -79,7 +86,7 @@ const Login = () => {
                 {/* Testimonial */}
                 <div className="bg-white/10 border border-white/15 rounded-xl p-5">
                     <p className="text-sm text-blue-200 italic mb-3 leading-relaxed">
-                        "EduRit cut our admin workload by 40%. Everything from attendance to fee collection just works."
+                        &quot;EduRit cut our admin workload by 40%. Everything from attendance to fee collection just works.&quot;
                     </p>
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold text-white">PH</div>
@@ -102,7 +109,7 @@ const Login = () => {
                     {/* Social login */}
                     <div className="grid grid-cols-2 gap-2.5 mb-6">
                         {[['G', 'Continue with Google', '#ea4335'], ['M', 'Microsoft', '#0078d4']].map(([icon, label, color]) => (
-                            <button key={label as string} className="flex items-center justify-center gap-2 py-2.5 rounded-xl border-[1.5px] border-gray-200 bg-white text-sm font-semibold cursor-pointer text-gray-700 font-['Outfit',sans-serif] transition-all duration-150 hover:border-[#ea4335] hover:bg-gray-50" style={{ '--hover-color': color } as React.CSSProperties}>
+                            <button key={label as string} className="flex items-center justify-center gap-2 py-2.5 rounded-xl border-[1.5px] border-gray-200 bg-white text-sm font-semibold cursor-pointer text-gray-700 font-['Outfit',sans-serif] transition-all duration-150 hover:border-[#ea4335] hover:bg-gray-50" style={{ '--hover-color': color } as CSSProperties}>
                                 <span className="text-sm font-extrabold" style={{ color: color as string }}>{icon}</span>
                                 <span className="text-xs">{label}</span>
                             </button>
@@ -147,7 +154,7 @@ const Login = () => {
                     </form>
 
                     <div className="text-center mt-6">
-                        <span className="text-sm text-slate-500">Don't have an account? </span>
+                        <span className="text-sm text-slate-500">Don&apos;t have an account? </span>
                         <button className="bg-none border-none text-sm text-blue-600 cursor-pointer font-['Outfit',sans-serif] font-bold">Sign up free</button>
                     </div>
 

@@ -6,7 +6,7 @@ import { DeskSlip, initialDeskSlips, SlipStatus } from './_data/deskSlipsData';
 const DeskSlipsPage = () => {
   const [slips, setSlips] = useState<DeskSlip[]>(initialDeskSlips);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  
+  console.log(setSlips, isGenerateModalOpen);
   // States for View & Print Modal Preview
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [activeSlip, setActiveSlip] = useState<DeskSlip | null>(null);

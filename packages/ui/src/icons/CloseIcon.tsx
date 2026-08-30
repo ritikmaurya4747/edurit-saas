@@ -13,6 +13,7 @@ const CloseIcon = ({
       width='50px'
       height='50px'
       className={className}
+      color={color}
       {...rest}
       fill='none'
       stroke={color}

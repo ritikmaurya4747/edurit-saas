@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { ColumnDef, DataTable } from '@repo/ui';
 import FeeHeader from './FeeHeader';
 import { 
-  FeeInvoice, initialInvoices, FeeStatus,
+  FeeInvoice, initialInvoices, 
   FeeStructure, initialStructures,
   EmiPlan, initialEmiPlans,
   RefundRecord, initialRefunds,
@@ -15,10 +15,10 @@ type FeeTabType = 'dues' | 'structures' | 'emi' | 'refunds' | 'receipts';
 const FeePage = () => {
   const [activeTab, setActiveTab] = useState<FeeTabType>('dues');
   const [invoices, setInvoices] = useState<FeeInvoice[]>(initialInvoices);
-  
   // Interactive Modal States for Actionable UX
   const [isCollectFeeOpen, setIsCollectFeeOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<FeeInvoice | null>(null);
+  console.log(setInvoices,selectedInvoice)
 
   const tabs = [
     { id: 'dues', label: 'Student dues' },

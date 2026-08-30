@@ -29,6 +29,12 @@ const Payment = () => {
     const [coupon, setCoupon] = useState('')
     const [couponApplied, setCouponApplied] = useState(false)
 
+    // Lazy initializer — this function runs exactly once, on mount, not on
+    // every render. This is React's recommended pattern for one-time,
+    // non-deterministic initial values (see: useState lazy initialization).
+    const [orderId] = useState(() => `ORD-${Date.now().toString().slice(-8)}`)
+    const [bankReference] = useState(() => `INV-${Date.now().toString().slice(-6)}`)
+
     const plan = PLANS.find(p => p.id === selectedPlan)!
     const annualPrice = Math.round(plan.price * 12 * 0.8)
     const effectivePrice = billing === 'annual' ? Math.round(annualPrice / 12) : plan.price
@@ -50,7 +56,7 @@ const Payment = () => {
                 <div className="text-center">
                     <div className="w-20 h-20 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin mx-auto mb-6" />
                     <div className="text-xl font-bold text-slate-800">Processing your payment…</div>
-                    <div className="text-sm text-slate-500 mt-2">Please don't close this window.</div>
+                    <div className="text-sm text-slate-500 mt-2">Please don&apos;t close this window.</div>
                 </div>
             </div>
         )
@@ -72,7 +78,7 @@ const Payment = () => {
                             ['Amount', `$${total}`],
                             ['Next billing', billing === 'annual' ? 'Aug 17, 2027' : 'Sep 17, 2026'],
                             ['Receipt sent to', 'admin@westbrook.edu'],
-                            ['Order ID', `ORD-${Date.now().toString().slice(-8)}`],
+                            ['Order ID', orderId],
                         ].map(([k, v]) => (
                             <div key={k} className="flex justify-between py-2 border-b border-slate-100 text-sm">
                                 <span className="text-slate-500">{k}</span>
@@ -194,7 +200,7 @@ const Payment = () => {
                         {method === 'bank' && (
                             <div className="bg-slate-50 rounded-xl p-5 border border-gray-200">
                                 <div className="text-sm font-semibold text-slate-800 mb-3">Bank Transfer Details</div>
-                                {[['Bank', 'Silicon Valley Bank'], ['Account Name', 'EduRit Technologies Inc.'], ['Account Number', '****-****-4400'], ['Routing Number', '****-0047'], ['Reference', `INV-${Date.now().toString().slice(-6)}`]].map(([k, v]) => (
+                                {[['Bank', 'Silicon Valley Bank'], ['Account Name', 'EduRit Technologies Inc.'], ['Account Number', '****-****-4400'], ['Routing Number', '****-0047'], ['Reference', bankReference]].map(([k, v]) => (
                                     <div key={k} className="flex justify-between py-2 border-b border-slate-100 text-xs">
                                         <span className="text-slate-500">{k}</span>
                                         <span className="font-semibold text-slate-800 font-['JetBrains_Mono',monospace]">{v}</span>
@@ -211,10 +217,10 @@ const Payment = () => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="text-sm font-bold text-slate-800 mb-4">Billing information</div>
                         <div className="grid grid-cols-2 gap-3">
-                            {[['Organization Name', 'col-span-2', 'Westbrook Academy'], ['Tax ID / VAT Number', 'col-span-2', 'Optional', false], ['Address', 'col-span-1', '400 Westbrook Drive'], ['City', 'col-span-1', 'San Francisco']].map(([label, col, placeholder, req = true]) => (
-                                <div key={label as string} className={col as string}>
-                                    <label className="text-xs font-semibold text-gray-700 block mb-1">{label as string}</label>
-                                    <input placeholder={placeholder as string}
+                            {[['Organization Name', 'col-span-2', 'Westbrook Academy'], ['Tax ID / VAT Number', 'col-span-2', 'Optional'], ['Address', 'col-span-1', '400 Westbrook Drive'], ['City', 'col-span-1', 'San Francisco']].map(([label, col, placeholder]) => (
+                                <div key={label} className={col}>
+                                    <label className="text-xs font-semibold text-gray-700 block mb-1">{label}</label>
+                                    <input placeholder={placeholder}
                                         className="w-full px-3.5 py-2.5 border-[1.5px] border-gray-200 rounded-lg text-sm outline-none box-border focus:border-blue-600"
                                     />
                                 </div>

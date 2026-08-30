@@ -2,11 +2,11 @@
 import React, { useState, useMemo } from 'react';
 import { ColumnDef, DataTable } from '@repo/ui';
 import { 
-  StaffMember, initialStaff, StaffStatus,
+  StaffMember, initialStaff,
   LeaveRequest, initialLeaves, LeaveStatus,
   PayrollRecord, initialPayroll, PayrollStatus,
-  AttendanceRecord, initialAttendance, AttendanceStatus,
-  AppraisalRecord, initialAppraisals, AppraisalStatus
+  AttendanceRecord, initialAttendance,
+  AppraisalRecord, initialAppraisals
 } from '../_data/staffHrData';
 
 type HrTabType = 'directory' | 'leaves' | 'attendance' | 'appraisals' | 'payroll';

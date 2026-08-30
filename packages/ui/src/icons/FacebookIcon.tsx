@@ -1,8 +1,11 @@
-
+interface FacebookIconProps {
+  size?: number;
+  className?: string;
+}
 const FacebookIcon = ({
     size = 24,
     className = ''
-}) => {
+}:FacebookIconProps) => {
     return (
         <svg
             width={size}

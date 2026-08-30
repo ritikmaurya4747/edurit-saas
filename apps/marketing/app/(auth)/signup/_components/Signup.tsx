@@ -1,7 +1,18 @@
 "use client"
 import { useState } from 'react'
+import type { FormEvent, ChangeEvent } from 'react'
 
 type Step = 1 | 2 | 3
+
+interface SignupForm {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+    schoolName: string
+    schoolCode: string
+    phone: string
+}
 
 const ROLES = [
     { id: 'superadmin', label: 'School Administrator', desc: 'I manage the school — admin, principal, or director.', icon: '🛡️', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
@@ -17,33 +28,43 @@ const PLAN_MAP: Record<string, string> = {
     parent: 'Free (Linked by school)',
 }
 
+interface InputFieldProps {
+    label: string
+    id: keyof SignupForm
+    value: string
+    onChange: (id: keyof SignupForm, value: string) => void
+    type?: string
+    placeholder: string
+    required?: boolean
+}
+
+const InputField = ({ label, id, value, onChange, type = 'text', placeholder, required = true }: InputFieldProps) => (
+    <div>
+        <label className="text-sm font-semibold text-gray-700 block mb-1">
+            {label}{required && <span className="text-red-600 ml-1">*</span>}
+        </label>
+        <input
+            type={type} value={value} placeholder={placeholder}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(id, e.target.value)}
+            className="w-full px-3.5 py-2.5 border-[1.5px] border-gray-200 rounded-lg text-sm text-slate-800 outline-none font-['Outfit',sans-serif] box-border transition-colors duration-100 focus:border-purple-600"
+        />
+    </div>
+)
+
 const Signup = () => {
     const [step, setStep] = useState<Step>(1)
     const [role, setRole] = useState('')
-    const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', schoolName: '', schoolCode: '', phone: '' })
+    const [form, setForm] = useState<SignupForm>({ firstName: '', lastName: '', email: '', password: '', schoolName: '', schoolCode: '', phone: '' })
     const [loading, setLoading] = useState(false)
     const [agree, setAgree] = useState(false)
 
-    const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+    const set = (k: keyof SignupForm, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-    const handleFinish = (e: React.FormEvent) => {
+    const handleFinish = (e: FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setTimeout(() => { setLoading(false) }, 1400)
     }
-
-    const InputField = ({ label, id, type = 'text', placeholder, required = true }: { label: string; id: keyof typeof form; type?: string; placeholder: string; required?: boolean }) => (
-        <div>
-            <label className="text-sm font-semibold text-gray-700 block mb-1">
-                {label}{required && <span className="text-red-600 ml-1">*</span>}
-            </label>
-            <input
-                type={type} value={form[id]} placeholder={placeholder}
-                onChange={e => set(id, e.target.value)}
-                className="w-full px-3.5 py-2.5 border-[1.5px] border-gray-200 rounded-lg text-sm text-slate-800 outline-none font-['Outfit',sans-serif] box-border transition-colors duration-100 focus:border-purple-600"
-            />
-        </div>
-    )
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 font-['Outfit',sans-serif]">
@@ -136,18 +157,18 @@ const Signup = () => {
 
                             <form onSubmit={handleFinish} className="flex flex-col gap-3.5">
                                 <div className="grid grid-cols-2 gap-3">
-                                    <InputField label="First Name" id="firstName" placeholder="Patricia" />
-                                    <InputField label="Last Name" id="lastName" placeholder="Harris" />
+                                    <InputField label="First Name" id="firstName" value={form.firstName} onChange={set} placeholder="Patricia" />
+                                    <InputField label="Last Name" id="lastName" value={form.lastName} onChange={set} placeholder="Harris" />
                                 </div>
-                                <InputField label="Email Address" id="email" type="email" placeholder="patricia@school.edu" />
-                                <InputField label="Phone Number" id="phone" placeholder="+1 (555) 201-4400" required={false} />
+                                <InputField label="Email Address" id="email" value={form.email} onChange={set} type="email" placeholder="patricia@school.edu" />
+                                <InputField label="Phone Number" id="phone" value={form.phone} onChange={set} placeholder="+1 (555) 201-4400" required={false} />
 
                                 {role === 'superadmin' && (
-                                    <InputField label="School Name" id="schoolName" placeholder="Westbrook Academy" />
+                                    <InputField label="School Name" id="schoolName" value={form.schoolName} onChange={set} placeholder="Westbrook Academy" />
                                 )}
 
                                 {(role === 'teacher' || role === 'student' || role === 'parent') && (
-                                    <InputField label="School Access Code" id="schoolCode" placeholder="e.g. WBA-2026" />
+                                    <InputField label="School Access Code" id="schoolCode" value={form.schoolCode} onChange={set} placeholder="e.g. WBA-2026" />
                                 )}
 
                                 <div>
@@ -168,7 +189,7 @@ const Signup = () => {
                                 <label className="flex gap-2.5 items-start cursor-pointer">
                                     <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="accent-purple-600 mt-0.5 w-3.5 h-3.5 shrink-0" />
                                     <span className="text-xs text-slate-500 leading-relaxed">
-                                        I agree to EduRit's <a href="#" className="text-purple-600 no-underline">Terms of Service</a> and <a href="#" className="text-purple-600 no-underline">Privacy Policy</a>. I understand my data will be processed in accordance with GDPR guidelines.
+                                        I agree to EduRit&apos;s <a href="#" className="text-purple-600 no-underline">Terms of Service</a> and <a href="#" className="text-purple-600 no-underline">Privacy Policy</a>. I understand my data will be processed in accordance with GDPR guidelines.
                                     </span>
                                 </label>
 
@@ -183,4 +204,4 @@ const Signup = () => {
         </div>
     )
 }
-export default Signup;
+export default Signup

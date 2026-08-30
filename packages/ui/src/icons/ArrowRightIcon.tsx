@@ -1,6 +1,9 @@
 import React from 'react';
-
-const ArrowRightIcon = ({ className = 'w-5 h-4 text-gray-400', stroke = 'currentColor' }) => {
+interface ArrowRightIconProps {
+  className?: string;
+  stroke?: string;
+}
+const ArrowRightIcon = ({ className = 'w-5 h-4 text-gray-400', stroke = 'currentColor' }:ArrowRightIconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

@@ -1,8 +1,11 @@
-
+interface TwitterIconProps {
+  size?: number;
+  className?: string;
+}
 const TwitterIcon = ({
     size = 24,
     className = ''
-}) => {
+}:TwitterIconProps) => {
     return (
         <svg
             width={size}

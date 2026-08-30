@@ -106,21 +106,21 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
  
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "EduRit ERP",
-  applicationCategory: "EducationalApplication",
-  operatingSystem: "Web",
-  url: siteUrl,
-  description:
-    "EduRit is a school management ERP system for admissions, attendance, fees, exams and communication.",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "INR",
-  },
-};
+// const jsonLd = {
+//   "@context": "https://schema.org",
+//   "@type": "SoftwareApplication",
+//   name: "EduRit ERP",
+//   applicationCategory: "EducationalApplication",
+//   operatingSystem: "Web",
+//   url: siteUrl,
+//   description:
+//     "EduRit is a school management ERP system for admissions, attendance, fees, exams and communication.",
+//   offers: {
+//     "@type": "Offer",
+//     price: "0",
+//     priceCurrency: "INR",
+//   },
+// };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

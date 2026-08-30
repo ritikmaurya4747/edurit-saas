@@ -19,6 +19,7 @@ const UsersIcon = ({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      color={color}
       {...rest}
     >
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

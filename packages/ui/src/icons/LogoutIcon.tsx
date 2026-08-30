@@ -19,6 +19,7 @@ const LogoutIcon = ({
       strokeLinejoin="round"
       aria-hidden="true"
       className={className}
+      color={color}
       {...rest}
     >
       <path d="m16 17 5-5-5-5"></path>

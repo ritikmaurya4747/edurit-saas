@@ -36,7 +36,7 @@ const AttendanceTooltip = ({
       </p>
 
       <p className="mt-1 text-[11px] font-semibold text-[#e49a14]">
-        value : {payload[0].value}
+        value : {payload[0]?.value}
       </p>
     </div>
   );
@@ -49,7 +49,7 @@ const AttendanceTrend = () => {
         Attendance trend, last 6 months
       </h2>
 
-      <div className="h-[140px] w-full">
+      <div className="h-35 w-full">
         <ResponsiveContainer
           width="100%"
           height="100%"

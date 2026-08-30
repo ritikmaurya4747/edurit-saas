@@ -9,7 +9,7 @@ const DashboardHeader = () => {
         </h1>
 
         <p className="mt-1 text-[11px] text-[#65758b]">
-          Here's how GreenWood is running today.
+          Here&apos;s how GreenWood is running today.
         </p>
       </div>
 

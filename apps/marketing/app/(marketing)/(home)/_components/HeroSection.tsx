@@ -314,7 +314,7 @@ const HeroSection = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TESTIMONIALS.map(t => (
               <div key={t.name} className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-                <div className="text-3xl text-slate-700 font-extrabold leading-none mb-5">"</div>
+                <div className="text-3xl text-slate-700 font-extrabold leading-none mb-5">&rdquo;</div>
                 <p className="text-sm text-slate-300 leading-relaxed mb-6">{t.quote}</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold border-2" style={{ background: `${t.color}25`, borderColor: `${t.color}50`, color: t.color }}>{t.initials}</div>
