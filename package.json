@@ -18,5 +18,8 @@
   "packageManager": "pnpm@11.24.0",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^12.0.1"
   }
 }

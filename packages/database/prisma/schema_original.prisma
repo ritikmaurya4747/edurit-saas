@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  subdomain String   @unique
+  logoUrl   String?
+  address   String?
+  phone     String?
+  email     String?
+
+  plan          Plan      @default(TRIAL)
+  isActive      Boolean   @default(true)
+  trialEndsAt   DateTime?
+  subscribedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  classRooms ClassRoom[]
+  students   StudentProfile[]
+  teachers   TeacherProfile[]
+  parents    ParentProfile[]
+  auditLogs  AuditLog[]
+
+  @@index([subdomain])
+  @@map("schools")
+}
+
+enum Plan {
+  TRIAL
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String
+  passwordHash String
+  fullName     String
+  role         Role
+  isActive     Boolean  @default(true)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  teacherProfile TeacherProfile?
+  parentProfile  ParentProfile?
+  studentProfile StudentProfile?
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, email])
+  @@index([schoolId])
+  @@index([schoolId, role])
+  @@map("users")
+}
+
+enum Role {
+  SUPERADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model ClassRoom {
+  id      String @id @default(cuid())
+  name    String
+  grade   String
+  section String
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  teacherId String?
+  teacher   TeacherProfile? @relation(fields: [teacherId], references: [id])
+
+  students StudentProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
+  @@map("class_rooms")
+}
+
+model TeacherProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  subject    String?
+  classRooms ClassRoom[]
+
+  createdAt DateTime @default(now())
+
+  @@index([schoolId])
+  @@map("teacher_profiles")
+}
+
+model ParentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  children StudentProfile[]
+
+  createdAt DateTime @default(now())
+
+  @@index([schoolId])
+  @@map("parent_profiles")
+}
+
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  rollNumber String?
+
+  classRoomId String?
+  classRoom   ClassRoom? @relation(fields: [classRoomId], references: [id])
+
+  parentId String?
+  parent   ParentProfile? @relation(fields: [parentId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([schoolId])
+  @@index([schoolId, classRoomId])
+  @@map("student_profiles")
+}
+
+model AuditLog {
+  id       String  @id @default(cuid())
+  schoolId String
+  school   School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id])
+
+  action   String
+  entity   String
+  entityId String?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([schoolId])
+  @@index([schoolId, createdAt])
+  @@map("audit_logs")
+}
