@@ -49,7 +49,7 @@ const DashboardSidebar = ({
         </div>
 
         {/* Nav Items */}
-        <div className="flex flex-col mt-5 overflow-y-auto px-2">
+        <div className="flex flex-col py-5 overflow-y-auto px-2">
           {sidebarData.map((section, sectionIndex) => (
             <div key={section.section} className={sectionIndex === 0 ? "" : "mt-6"}>
               {isSidebarOpen && (
