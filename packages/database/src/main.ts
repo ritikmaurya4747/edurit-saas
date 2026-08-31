@@ -34,9 +34,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new TransformResponseInterceptor());
 
-  // ==========================================
-  // SWAGGER (OPENAPI) CONFIGURATION
-  // ==========================================
+  // Swagger OpenAPI Documentation
   const config = new DocumentBuilder()
     .setTitle('EduRit School ERP API')
     .setDescription('Multi-Tenant SaaS Backend REST APIs')
@@ -63,10 +61,10 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
+  const document = SwaggerModule.createDocument(app as any, config);
+  SwaggerModule.setup('docs', app as any, document, {
     swaggerOptions: {
-      persistAuthorization: true, // Retains JWT token when refreshing the page
+      persistAuthorization: true,
     },
   });
 

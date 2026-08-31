@@ -1,0 +1,42 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../../core/database/prisma.service';
+
+export interface PlatformJwtPayload {
+  sub: string;
+  email: string;
+  role: string;
+  isPlatformUser: boolean;
+}
+
+@Injectable()
+export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jwt') {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_SECRET'),
+    });
+  }
+
+  async validate(payload: PlatformJwtPayload) {
+    if (!payload.isPlatformUser) {
+      throw new UnauthorizedException('Access denied. Platform credentials required.');
+    }
+
+    const platformUser = await this.prisma.platformUser.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!platformUser || !platformUser.isActive || platformUser.deletedAt) {
+      throw new UnauthorizedException('Platform account is suspended or invalid.');
+    }
+
+    return platformUser;
+  }
+}

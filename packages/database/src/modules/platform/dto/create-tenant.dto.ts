@@ -12,13 +12,12 @@ export class CreateTenantDto {
   @ApiProperty({
     example: 'dps-rk-puram',
     description: 'Unique URL slug for school portal subdomain',
-    maxLength: 63,
   })
   @IsString()
   @IsNotEmpty()
   @MaxLength(63)
   @Matches(/^[a-z0-9-]+$/, {
-    message: 'Slug can only contain lowercase letters, numbers, and hyphens',
+    message: 'Slug can only contain lowercase alphanumeric characters and hyphens',
   })
   slug: string;
 
@@ -63,6 +62,23 @@ export class CreateTenantDto {
   adminLastName: string;
 
   @ApiPropertyOptional({
+    example: 'Admin@123456',
+    description: 'Initial temporary password for school admin (default generated if empty)',
+  })
+  @IsOptional()
+  @IsString()
+  adminInitialPassword?: string;
+
+  @ApiPropertyOptional({
+    example: 'FREE_TRIAL',
+    description: 'Plan code: FREE_TRIAL or PRO_STANDARD',
+    default: 'FREE_TRIAL',
+  })
+  @IsOptional()
+  @IsString()
+  planCode?: string = 'FREE_TRIAL';
+
+  @ApiPropertyOptional({
     example: 'INR',
     description: '3-letter ISO currency code',
     default: 'INR',
@@ -73,7 +89,7 @@ export class CreateTenantDto {
 
   @ApiPropertyOptional({
     example: 'Asia/Kolkata',
-    description: 'IANA timezone for timetable and attendance sessions',
+    description: 'Timezone identifier',
     default: 'Asia/Kolkata',
   })
   @IsOptional()

@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PlatformController } from './platform.controller';
 import { PlatformService } from './platform.service';
+import { PlatformJwtStrategy } from './strategies/platform-jwt.strategy';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'platform-jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -18,7 +21,7 @@ import { PlatformService } from './platform.service';
     }),
   ],
   controllers: [PlatformController],
-  providers: [PlatformService],
+  providers: [PlatformService, PlatformJwtStrategy],
   exports: [PlatformService],
 })
 export class PlatformModule {}
