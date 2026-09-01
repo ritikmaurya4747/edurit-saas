@@ -1,9 +1,9 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import type { JwtPayload } from "@techrit/types";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): JwtPayload => {
+export const CurrentPlatformUser = createParamDecorator(
+  (data: string | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user;
-  }
+    const user = request.user;
+    return data ? user?.[data] : user;
+  },
 );

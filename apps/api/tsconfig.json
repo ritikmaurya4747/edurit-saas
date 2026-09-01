@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "moduleResolution": "Node10",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -10,8 +9,7 @@
     "skipLibCheck": true,
     "types": ["node"],
     "outDir": "./dist",
-    "baseUrl": "./",
-    "ignoreDeprecations": "5.0"
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

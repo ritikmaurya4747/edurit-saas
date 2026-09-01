@@ -5,12 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SubscriptionStatus } from '@prisma/client';
 import { PrismaService } from '../../core/database/prisma.service';
 import { PlatformLoginDto } from './dto/platform-login.dto';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import * as bcrypt from 'bcrypt';
+import { SubscriptionStatus } from '@edurit/database';
 
 @Injectable()
 export class PlatformService {

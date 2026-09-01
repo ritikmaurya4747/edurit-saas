@@ -1,18 +1,18 @@
+import { Prisma } from '@edurit/database';
 import {
   ExceptionFilter,
   Catch,
   ArgumentsHost,
   HttpStatus,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { Request, Response } from 'express';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaClientExceptionFilter implements ExceptionFilter {
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<FastifyReply>();
+    const request = ctx.getRequest<FastifyRequest>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Database operation failed';
@@ -39,7 +39,7 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
         break;
     }
 
-    response.status(status).json({
+    response.status(status).send({
       success: false,
       statusCode: status,
       errorCode,
