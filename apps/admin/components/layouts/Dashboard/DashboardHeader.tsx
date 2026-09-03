@@ -1,3 +1,4 @@
+import { logoutAction } from '@/app/(home)/login/_actions/auth'
 import AlertIcon from '@repo/ui/icons/AlertIcon'
 import LogoutIcon from '@repo/ui/icons/LogoutIcon'
 import SearchIcon from '@repo/ui/icons/SearchIcon'
@@ -24,7 +25,7 @@ const DashboardHeader = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Right side content */}
       <div className="flex items-center gap-3">
         {/* Notification */}
@@ -32,7 +33,7 @@ const DashboardHeader = () => {
           type="button"
           className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
         >
-          <AlertIcon/>
+          <AlertIcon />
 
           {/* Notification dot */}
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
@@ -60,13 +61,15 @@ const DashboardHeader = () => {
         </div>
 
         {/* Logout */}
-        <button
-          type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-          aria-label="Logout"
-        >
-          <LogoutIcon/>
-        </button>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-all duration-200 ease-in-out hover:bg-red-50 hover:text-red-600 hover:border-red-200 hover:shadow-sm active:scale-95 cursor-pointer" 
+            aria-label="Logout"
+          >
+            <LogoutIcon />
+          </button>
+        </form>
       </div>
     </div>
   )
