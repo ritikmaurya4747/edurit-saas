@@ -73,6 +73,7 @@ export async function loginAction(
 
   } catch (error) {
     // Handle network or unexpected server errors
+    console.log("Login action error:", error)
     return {
       success: false,
       message: "Something went wrong while communicating with the server",

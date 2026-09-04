@@ -1,9 +1,9 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist",
+    // "outDir": "dist",
     "strictNullChecks": true
   },
-  "include": ["src"],
+  "include": ["src", "../../apps/admin/components/layouts/Providers.tsx"],
   "exclude": ["node_modules", "dist"]
 }

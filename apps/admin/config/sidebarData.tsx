@@ -1,6 +1,8 @@
 import {
   CalendarIcon,
-  DashboardIcon
+  DashboardIcon,
+  UserCheckIcon,
+  UserPlusIcon,
 } from "@repo/ui/icons";
 
 export const sidebarData = [
@@ -15,12 +17,27 @@ export const sidebarData = [
     ],
   },
   {
-    section: "Academics",
+    section: "Platform Management",
+    items: [
+      {
+        icon: <UserCheckIcon className="w-6 h-6" />,
+        label: "All Schools", 
+        url: "/dashboard/tenants",
+      },
+      {
+        icon: <UserPlusIcon className="w-6 h-6" />,
+        label: "Add New School", 
+        url: "/dashboard/tenants-create",
+      },
+    ],
+  },
+  {
+    section: "System",
     items: [
       {
         icon: <CalendarIcon className="w-6 h-6" />,
-        label: "Timetable",
-        url: "/dashboard/",
+        label: "Audit Logs",
+        url: "/dashboard/logs",
       },
     ],
   },
