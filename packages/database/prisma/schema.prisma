@@ -30,6 +30,9 @@ model PlatformUser {
   permissionsJson Json         @default("[]") @map("permissions_json") @db.JsonB
   isActive        Boolean      @default(true) @map("is_active")
   lastLoginAt     DateTime?    @map("last_login_at") @db.Timestamptz
+  failedLoginAttempts Int       @default(0)
+  lockedUntil     DateTime?
+  refreshTokenHash String?  @map("refresh_token_hash") @db.VarChar(255)
   deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz

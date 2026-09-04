@@ -1,106 +1,60 @@
 import {
   Injectable,
-  UnauthorizedException,
   ConflictException,
   NotFoundException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../../core/database/prisma.service';
-import { PlatformLoginDto } from './dto/platform-login.dto';
-import { CreateTenantDto } from './dto/create-tenant.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
-import * as bcrypt from 'bcrypt';
-import { SubscriptionStatus } from '@edurit/database';
+} from "@nestjs/common";
+import { PrismaService } from "../../../core/database/prisma.service";
+import { CreateTenantDto } from "./dto/create-tenant.dto";
+import { PaginationQueryDto } from "../../../common/dto/pagination-query.dto";
+import * as bcrypt from "bcrypt";
+import { SubscriptionStatus } from "@edurit/database";
 
 @Injectable()
-export class PlatformService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-  ) {}
+export class PlatformTenantsService {
+  constructor(private readonly prisma: PrismaService) {}
 
-  // 1. Super Admin Authentication
-  async login(dto: PlatformLoginDto) {
-    const user = await this.prisma.platformUser.findUnique({
-      where: { email: dto.email.toLowerCase().trim() },
-    });
-
-    if (!user || !user.isActive || user.deletedAt) {
-      throw new UnauthorizedException('Invalid platform credentials');
-    }
-
-    const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid platform credentials');
-    }
-
-    await this.prisma.platformUser.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
-
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      isPlatformUser: true,
-    };
-
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
-    };
-  }
-
-  // 2. Tenant Provisioning Pipeline
+  // Tenant Provisioning Pipeline
   async createTenant(dto: CreateTenantDto, platformUserId: string) {
     const normalizedSlug = dto.slug.toLowerCase().trim();
 
-    // Verify slug uniqueness
     const existingTenant = await this.prisma.tenant.findUnique({
       where: { slug: normalizedSlug },
     });
     if (existingTenant) {
-      throw new ConflictException(`Tenant slug '${normalizedSlug}' is already taken`);
+      throw new ConflictException(
+        `Tenant slug '${normalizedSlug}' is already taken`,
+      );
     }
 
-    // Verify subscription plan exists
     const plan = await this.prisma.subscriptionPlan.findUnique({
-      where: { code: dto.planCode || 'FREE_TRIAL' },
+      where: { code: dto.planCode || "FREE_TRIAL" },
     });
     if (!plan) {
-      throw new NotFoundException(`Subscription plan '${dto.planCode}' not found`);
+      throw new NotFoundException(
+        `Subscription plan '${dto.planCode}' not found`,
+      );
     }
 
-    // Calculate dates & status dynamically based on selected plan
-    const isTrial = plan.code === 'FREE_TRIAL';
+    const isTrial = plan.code === "FREE_TRIAL";
     const now = new Date();
     const endDate = new Date(now);
 
     if (isTrial) {
-      endDate.setDate(endDate.getDate() + 14); // 14 Days Free Trial
+      endDate.setDate(endDate.getDate() + 14);
     } else {
-      endDate.setFullYear(endDate.getFullYear() + 1); // 1 Year for Standard/Pro
+      endDate.setFullYear(endDate.getFullYear() + 1);
     }
 
     const subscriptionStatus = isTrial
       ? SubscriptionStatus.TRIAL
       : SubscriptionStatus.ACTIVE;
 
-    // Execute CPU-heavy hashing & master data queries before starting the transaction
-    const tempPassword = dto.adminInitialPassword || 'School@123456';
+    const tempPassword = dto.adminInitialPassword || "School@123456";
     const passwordHash = await bcrypt.hash(tempPassword, 10);
     const masterPermissions = await this.prisma.permission.findMany();
 
     return this.prisma.$transaction(
       async (tx) => {
-        // a. Create Tenant
         const tenant = await tx.tenant.create({
           data: {
             slug: normalizedSlug,
@@ -109,16 +63,14 @@ export class PlatformService {
           },
         });
 
-        // b. Create Tenant Settings
         await tx.tenantSettings.create({
           data: {
             tenantId: tenant.id,
-            currency: dto.currency || 'INR',
-            timezone: dto.timezone || 'Asia/Kolkata',
+            currency: dto.currency || "INR",
+            timezone: dto.timezone || "Asia/Kolkata",
           },
         });
 
-        // c. Create Subscription Binding
         await tx.tenantSubscription.create({
           data: {
             tenantId: tenant.id,
@@ -130,36 +82,33 @@ export class PlatformService {
           },
         });
 
-        // d. Create Default Main Branch
         const mainBranch = await tx.branch.create({
           data: {
             tenantId: tenant.id,
-            name: 'Main Campus',
-            code: 'MAIN',
+            name: "Main Campus",
+            code: "MAIN",
           },
         });
 
-        // e. Create Default Roles
         const adminRole = await tx.role.create({
           data: {
             tenantId: tenant.id,
-            name: 'School Administrator',
-            code: 'ADMIN',
+            name: "School Administrator",
+            code: "ADMIN",
             isSystem: true,
           },
         });
 
         await tx.role.createMany({
           data: [
-            { tenantId: tenant.id, name: 'Teacher', code: 'TEACHER', isSystem: true },
-            { tenantId: tenant.id, name: 'Accountant', code: 'ACCOUNTANT', isSystem: true },
-            { tenantId: tenant.id, name: 'Staff', code: 'STAFF', isSystem: true },
-            { tenantId: tenant.id, name: 'Student', code: 'STUDENT', isSystem: true },
-            { tenantId: tenant.id, name: 'Parent', code: 'PARENT', isSystem: true },
+            { tenantId: tenant.id, name: "Teacher", code: "TEACHER", isSystem: true },
+            { tenantId: tenant.id, name: "Accountant", code: "ACCOUNTANT", isSystem: true },
+            { tenantId: tenant.id, name: "Staff", code: "STAFF", isSystem: true },
+            { tenantId: tenant.id, name: "Student", code: "STUDENT", isSystem: true },
+            { tenantId: tenant.id, name: "Parent", code: "PARENT", isSystem: true },
           ],
         });
 
-        // f. Attach Master Permissions to School Admin Role
         if (masterPermissions.length > 0) {
           await tx.rolePermission.createMany({
             data: masterPermissions.map((perm) => ({
@@ -169,7 +118,6 @@ export class PlatformService {
           });
         }
 
-        // g. Create / Link School Admin User
         const adminUser = await tx.user.upsert({
           where: { email: dto.adminEmail.toLowerCase().trim() },
           update: {},
@@ -181,7 +129,6 @@ export class PlatformService {
           },
         });
 
-        // h. Create Membership & Attach Admin Role
         const membership = await tx.membership.create({
           data: {
             tenantId: tenant.id,
@@ -196,13 +143,12 @@ export class PlatformService {
           },
         });
 
-        // i. Record Platform Audit Log
         await tx.platformAuditLog.create({
           data: {
             platformUserId,
             targetTenantId: tenant.id,
-            action: 'TENANT_PROVISIONED',
-            entityName: 'Tenant',
+            action: "TENANT_PROVISIONED",
+            entityName: "Tenant",
             entityId: tenant.id,
             changes: {
               slug: tenant.slug,
@@ -248,7 +194,7 @@ export class PlatformService {
     );
   }
 
-  // 3. List All Provisioned Tenants (Paginated)
+  // List All Provisioned Tenants (Paginated)
   async listTenants(query: PaginationQueryDto) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;
@@ -257,8 +203,8 @@ export class PlatformService {
     const where = query.search
       ? {
           OR: [
-            { name: { contains: query.search, mode: 'insensitive' as const } },
-            { slug: { contains: query.search, mode: 'insensitive' as const } },
+            { name: { contains: query.search, mode: "insensitive" as const } },
+            { slug: { contains: query.search, mode: "insensitive" as const } },
           ],
           deletedAt: null,
         }
@@ -270,12 +216,12 @@ export class PlatformService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           settings: true,
           subscriptions: {
             include: { plan: true },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
             take: 1,
           },
           _count: {

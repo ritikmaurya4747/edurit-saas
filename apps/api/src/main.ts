@@ -10,8 +10,8 @@ import fastifyHelmet from "@fastify/helmet";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
-import { PrismaClientExceptionFilter } from "./common/filters/prisma-exception.filter";
 import { TransformResponseInterceptor } from "./common/interceptors/transform-response.interceptor";
+import { PrismaExceptionFilter } from "./core/filters/prisma-exception.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -53,7 +53,7 @@ async function bootstrap() {
   // Exception filters
   app.useGlobalFilters(
     new HttpExceptionFilter(),
-    new PrismaClientExceptionFilter(),
+    new PrismaExceptionFilter(),
   );
 
   // Response transform
