@@ -5,7 +5,6 @@ import axios from "axios";
 const getTenants = async () => {
   try {
     const response = await axiosInstance.get("platform/tenants");
-console.log(response)
     return {
       success: true,
       data: response.data.data || [],

@@ -1,11 +1,8 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { DataTable } from "@repo/ui";
-import getTenants from "../action/getTenants";
-
+import Link from "next/link";
+import useTenantsQuery from "../hooks/useTenantsQuery";
 interface TenantRowOriginal {
   name: string;
   slug: string;
@@ -30,16 +27,7 @@ interface CellContext {
 
 const Tenants = () => {
   // Using TanStack query with the clean getTenants action instead of direct fetch
-  const { data: tenants = [], isLoading, isError } = useQuery({
-    queryKey: ["platform-tenants"],
-    queryFn: async () => {
-      const result = await getTenants();
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-      return result.data;
-    },
-  });
+  const { data: tenants = [], isLoading, isError } = useTenantsQuery();
 
   const columns = [
     {
