@@ -29,7 +29,7 @@ export async function loginAction(
   
   try {
     // Resolve the appropriate API URL based on the environment
-    const apiUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/";
+    const apiUrl = process.env.API_BASE_URL || "http://localhost:4000/";
 
     // 1. Authenticate against the centralized backend
     const res = await fetch(`${apiUrl}platform/auth/login`, {
