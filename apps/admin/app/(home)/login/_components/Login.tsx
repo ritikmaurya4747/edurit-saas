@@ -38,7 +38,7 @@ const Login = () => {
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
             <span className="text-[#1C263A] font-black text-xl tracking-tighter">ER</span>
           </div>
-          <span className="text-white text-2xl font-bold tracking-wide font-serif">EduRit<span className="text-indigo-400">HQ</span></span>
+          <span className="text-white text-2xl font-bold tracking-wide font-serif">EduRit</span>
         </div>
 
         <div className="relative z-10 space-y-6 max-w-lg">
@@ -64,7 +64,7 @@ const Login = () => {
              <div className="w-8 h-8 bg-[#1C263A] rounded-md flex items-center justify-center">
               <span className="text-white font-black text-sm">ER</span>
             </div>
-            <span className="text-gray-900 text-xl font-bold font-serif">EduRit HQ</span>
+            <span className="text-gray-900 text-xl font-bold font-serif">EduRit</span>
           </div>
 
           <div className="mb-8">
@@ -148,7 +148,7 @@ const Login = () => {
                   Authenticating...
                 </>
               ) : (
-                "Sign In to HQ"
+                "Sign In to Admin"
               )}
             </button>
           </form>

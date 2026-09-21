@@ -34,8 +34,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global prefix + versioning → routes become /api/v1/...
-  app.setGlobalPrefix("api");
+  // Global prefix + versioning → routes become /v1/...
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: "1",
@@ -96,7 +95,7 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
   await app.listen(port, "0.0.0.0");
 
-  console.log(`🚀 API running on: http://localhost:${port}/api/v1`);
+  console.log(`🚀 API running on: http://localhost:${port}/v1`);
   console.log(`📑 Swagger Documentation: http://localhost:${port}/docs`);
 }
 
