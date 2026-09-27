@@ -75,7 +75,7 @@ const Tenants = () => {
           <p className="text-sm text-gray-500 mt-1">View and manage all registered platform tenants.</p>
         </div>
         <Link
-          href="/dashboard/tenants/create"
+          href="/dashboard/tenants-create"
           className="px-4 py-2 bg-[#1C263A] text-white text-sm font-medium rounded-lg hover:bg-[#111827] transition-colors shadow-sm"
         >
           + Add New School

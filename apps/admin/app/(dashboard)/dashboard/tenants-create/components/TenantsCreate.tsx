@@ -40,7 +40,7 @@ const TenantsCreate = () => {
       onSuccess: (result) => {
         if (result.success) {
           toast.success(result.message || "School provisioned successfully!");
-          router.push("/dashboard/tenants");
+          router.push("/dashboard");
         } else {
           toast.error(result.message || "Failed to provision school.");
         }
