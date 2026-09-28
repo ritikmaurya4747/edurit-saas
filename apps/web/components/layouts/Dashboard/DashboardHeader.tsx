@@ -1,6 +1,7 @@
 import AlertIcon from '@repo/ui/icons/AlertIcon'
 import LogoutIcon from '@repo/ui/icons/LogoutIcon'
 import SearchIcon from '@repo/ui/icons/SearchIcon'
+import { tenantLogoutAction } from '../../../app/sites/[tenant]/login/actions/tenant-auth'
 
 const DashboardHeader = () => {
   return (
@@ -60,13 +61,15 @@ const DashboardHeader = () => {
         </div>
 
         {/* Logout */}
-        <button
-          type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+        <form action={tenantLogoutAction}>
+        <button 
+          type="submit"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 cursor-pointer"
           aria-label="Logout"
         >
           <LogoutIcon/>
         </button>
+        </form>
       </div>
     </div>
   )
