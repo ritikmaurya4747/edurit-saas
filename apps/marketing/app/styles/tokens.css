@@ -1,0 +1,16 @@
+/* Design tokens (mirrored in tailwind.config.ts), sampled from edurit.in */
+:root {
+  --ink: #1D293D;        /* headings (slate-800) */
+  --ink-soft: #45556C;   /* body text (slate-600) */
+  --ink-faint: #62748E;  /* muted text (slate-500) */
+  --paper: #F8FAFC;      /* page background (slate-50) */
+  --paper-sunk: #F1F5F9; /* alternate sections */
+  --line: #E2E8F0;       /* borders */
+  --brand: #2563EB;      /* primary blue */
+  --accent: #7C3AED;     /* violet; brand gradient runs brand -> accent */
+  --night: #0F172B;      /* dark bands, footer */
+  --sun: #F59E0B;        /* amber accent */
+  --teal: #14B8A6;       /* teal accent */
+  --meadow: #009966;     /* success */
+  --clay: #E11D48;       /* error / absent */
+}

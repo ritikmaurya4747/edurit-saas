@@ -1,27 +1,13 @@
 import type { MetadataRoute } from "next";
+import { SITE } from "./lib/constants";
 
-const siteUrl = "https://edurit.ritikmaurya.in";
+const routes = ["", "/features", "/solutions", "/pricing", "/resources", "/contact", "/demo", "/about", "/privacy", "/terms"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    // Apne baaki public marketing pages yahan add karo:
-    // {
-    //   url: `${siteUrl}/pricing`,
-    //   lastModified: new Date(),
-    //   changeFrequency: "monthly",
-    //   priority: 0.8,
-    // },
-    // {
-    //   url: `${siteUrl}/features`,
-    //   lastModified: new Date(),
-    //   changeFrequency: "monthly",
-    //   priority: 0.8,
-    // },
-  ];
+  return routes.map((route) => ({
+    url: `${SITE.url}${route}`,
+    lastModified: new Date(),
+    changeFrequency: route === "" ? "weekly" : "monthly",
+    priority: route === "" ? 1 : 0.7,
+  }));
 }
