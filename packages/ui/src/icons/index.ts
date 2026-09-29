@@ -21,3 +21,5 @@ export { default as CreditCardIcon } from "./CreditCardIcon";
 export { default as UserCheckIcon } from "./UserCheckIcon";
 export { default as UserPlusIcon } from "./UserPlusIcon";
 export { default as UsersIcon } from "./UsersIcon";
+export { default as BurgerMenuLeft } from "./BurgerMenuLeft";
+export { default as BurgerMenuRight } from "./BurgerMenuRight";
