@@ -1,20 +1,15 @@
 "use client";
 
-import ArrowLeftIcon from "@repo/ui/icons/ArrowLeftIcon";
-import ArrowRightIcon from "@repo/ui/icons/ArrowRightIcon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { sidebarData } from "../../../config/sidebarData";
 
-interface DashboardSidebarProps {
+export interface DashboardSidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (val: boolean) => void;
 }
 
-const DashboardSidebar = ({
-  isSidebarOpen,
-  setIsSidebarOpen,
-}: DashboardSidebarProps) => {
+const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
   const pathname = usePathname();
 
   return (
@@ -38,9 +33,7 @@ const DashboardSidebar = ({
 
           {isSidebarOpen && (
             <div className="min-w-0">
-              <h1 className="truncate text-md text-white font-bold">
-                EduRit
-              </h1>
+              <h1 className="truncate text-md text-white font-bold">EduRit</h1>
               <p className="mt-0.5 text-[10px] font-medium tracking-wide text-gray-400">
                 ERP <span className="mx-1">•</span> Super Admin
               </p>
@@ -51,7 +44,10 @@ const DashboardSidebar = ({
         {/* Nav Items */}
         <div className="flex flex-col py-5 overflow-y-auto px-2">
           {sidebarData.map((section, sectionIndex) => (
-            <div key={section.section} className={sectionIndex === 0 ? "" : "mt-6"}>
+            <div
+              key={section.section}
+              className={sectionIndex === 0 ? "" : "mt-6"}
+            >
               {isSidebarOpen && (
                 <p className="px-4 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                   {section.section}
@@ -107,7 +103,7 @@ const DashboardSidebar = ({
       </div>
 
       {/* Toggle Button */}
-      <button
+      {/* <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         className={`absolute ${
           isSidebarOpen ? "left-54" : "left-15"
@@ -118,7 +114,7 @@ const DashboardSidebar = ({
         ) : (
           <ArrowRightIcon className="w-4 h-4" />
         )}
-      </button>
+      </button> */}
     </div>
   );
 };
