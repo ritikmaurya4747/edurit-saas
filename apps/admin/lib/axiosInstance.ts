@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 export const axiosInstance = axios.create({
   baseURL: process.env.API_BASE_URL,
+  timeout: 10000,
 });
 
 axiosInstance.interceptors.request.use(async (config) => {

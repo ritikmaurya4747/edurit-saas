@@ -1,13 +1,13 @@
 "use client";
 
 import { logoutAction } from "@/app/(home)/login/_actions/auth";
-import { AuthUser, getCurrentUser } from "@/lib/auth";
 import { formatRole, getInitials } from "@/lib/dashboard";
+import { usePlatformUser } from "@/providers/user-provider";
 import { BurgerMenuLeft, BurgerMenuRight } from "@repo/ui/icons";
 import AlertIcon from "@repo/ui/icons/AlertIcon";
 import LogoutIcon from "@repo/ui/icons/LogoutIcon";
 import SearchIcon from "@repo/ui/icons/SearchIcon";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 interface DashboardHeaderProps {
   isSidebarOpen: boolean;
@@ -17,23 +17,9 @@ const DashboardHeader = ({
   isSidebarOpen,
   setIsSidebarOpen,
 }: DashboardHeaderProps) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  console.log("DashboardHeader user:", user);
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await getCurrentUser();
-
-      setUser(currentUser);
-    };
-
-    loadUser();
-  }, []);
-
+  const user = usePlatformUser();
   const name = user?.name || user?.email || "User";
-
   const initials = getInitials(user?.name || user?.email);
-
   const role = formatRole(user?.role);
 
   return (
