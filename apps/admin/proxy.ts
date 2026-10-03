@@ -30,6 +30,7 @@ export function proxy(request: NextRequest) {
 // 5. Matcher config to ensure the proxy only runs on specific routes
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*', 
     '/login'
   ],
