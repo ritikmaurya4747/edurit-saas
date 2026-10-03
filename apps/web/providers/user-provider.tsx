@@ -1,7 +1,7 @@
 "use client";
 
-import { SessionUser } from "@/lib/auth/types";
 import { createContext, useContext } from "react";
+import type { SessionUser } from "@/lib/auth/types";
 
 const UserContext = createContext<SessionUser | null>(null);
 
