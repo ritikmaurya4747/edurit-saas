@@ -83,7 +83,7 @@ async function main() {
   console.log('✅ Seeded default subscription plans.');
 
   // 3. Seed Platform SuperAdmin
-  const passwordHash = await bcrypt.hash('Admin@123456', 10);
+  const passwordHash = await bcrypt.hash('Admin@123456', 12);
   
   await prisma.platformUser.upsert({
     where: { email: 'superadmin@edurit.com' },

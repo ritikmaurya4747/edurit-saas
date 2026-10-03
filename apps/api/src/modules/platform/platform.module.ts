@@ -14,11 +14,9 @@ import { PlatformJwtStrategy } from "./strategies/platform-jwt.strategy";
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService): JwtModuleOptions => ({
-        secret: configService.getOrThrow<string>("JWT_SECRET"),
-        signOptions: {
-          expiresIn: configService.get<string>("JWT_EXPIRES_IN", "7d") as any,
-        },
+      // expiry service mein har token pe alag di jaati hai (access 1h, refresh 30d)
+      useFactory: (config: ConfigService): JwtModuleOptions => ({
+        secret: config.getOrThrow<string>("PLATFORM_JWT_SECRET"),
       }),
     }),
   ],

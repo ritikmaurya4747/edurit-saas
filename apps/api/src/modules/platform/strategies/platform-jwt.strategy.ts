@@ -17,26 +17,23 @@ export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jw
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
-    });
+   super({
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  ignoreExpiration: false,
+  secretOrKey: configService.getOrThrow<string>("PLATFORM_JWT_SECRET"),
+});
   }
 
-  async validate(payload: PlatformJwtPayload) {
-    if (!payload.isPlatformUser) {
-      throw new UnauthorizedException('Access denied. Platform credentials required.');
-    }
+  async validate(payload: PlatformJwtPayload & { type?: string }) {
+  if (!payload.isPlatformUser || payload.type !== "access") {
+    throw new UnauthorizedException("Access denied. Platform credentials required.");
+  }
 
-    const platformUser = await this.prisma.platformUser.findUnique({
-      where: { id: payload.sub },
-    });
+  const u = await this.prisma.platformUser.findUnique({ where: { id: payload.sub } });
+  if (!u || !u.isActive || u.deletedAt) {
+    throw new UnauthorizedException("Platform account is suspended or invalid.");
+  }
 
-    if (!platformUser || !platformUser.isActive || platformUser.deletedAt) {
-      throw new UnauthorizedException('Platform account is suspended or invalid.');
-    }
-
-    return platformUser;
+  return { id: u.id, email: u.email, role: u.role };
   }
 }
