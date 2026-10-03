@@ -83,4 +83,52 @@ export class AuthService {
       }
     };
   }
+
+  async getMe(userId: string, tenantId: string) {
+  const membership = await this.prisma.membership.findUnique({
+    where: { tenantId_userId: { tenantId, userId } },
+    select: {
+      status: true,
+      user: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
+      },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          settings: { select: { logoUrl: true, themeConfig: true } },
+        },
+      },
+      roles: { select: { role: { select: { name: true, code: true } } } },
+    },
+  });
+
+  if (!membership || membership.status !== 'ACTIVE') {
+    throw new UnauthorizedException();
+  }
+
+  return {
+    user: {
+      id: membership.user.id,
+      email: membership.user.email,
+      avatarUrl: membership.user.avatarUrl,
+      name: `${membership.user.firstName} ${membership.user.lastName}`.trim(),
+    },
+    tenant: {
+      id: membership.tenant.id,
+      name: membership.tenant.name,
+      slug: membership.tenant.slug,
+      logoUrl: membership.tenant.settings?.logoUrl ?? null,
+      themeConfig: membership.tenant.settings?.themeConfig ?? {},
+    },
+    roles: membership.roles.map((r) => r.role),
+  };
+}
 }

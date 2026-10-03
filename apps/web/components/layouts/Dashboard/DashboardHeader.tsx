@@ -1,12 +1,15 @@
-import AlertIcon from '@repo/ui/icons/AlertIcon'
-import LogoutIcon from '@repo/ui/icons/LogoutIcon'
-import SearchIcon from '@repo/ui/icons/SearchIcon'
-import { getCurrentUser } from '../../../lib/auth/get-current-user';
-import { formatRole, getInitials } from '../../../lib/utils/format';
-import { tenantLogoutAction } from '../../../app/sites/[tenant]/login/actions/tenant-auth';
+"use client";
 
-const DashboardHeader = async () => {
-  const user = await getCurrentUser();
+import AlertIcon from "@repo/ui/icons/AlertIcon";
+import LogoutIcon from "@repo/ui/icons/LogoutIcon";
+import SearchIcon from "@repo/ui/icons/SearchIcon";
+import { useUser } from "@/providers/user-provider";
+import { formatRole, getInitials } from "@/lib/utils/format";
+import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
+
+const DashboardHeader = () => {
+  const user = useUser();
+  console.log("DashboardHeader user", user);
 
   return (
     <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
@@ -53,7 +56,8 @@ const DashboardHeader = async () => {
           <div className="hidden sm:block leading-tight">
             <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
             <p className="mt-0.5 text-[11px] text-gray-400">
-              {formatRole(user?.role)}
+              {/* {formatRole(user?.role)} */}
+              {user?.role}
             </p>
           </div>
         </div>
