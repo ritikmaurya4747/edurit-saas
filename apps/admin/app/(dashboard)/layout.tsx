@@ -1,17 +1,44 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "../globals.css";
+import DashboardLayout from "../../components/layouts/Dashboard/DashboardLayout";
+import Provider from "@/components/layouts/Providers";
+import { getCurrentUser } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { UserProvider } from "@/providers/user-provider";
-import DashboardLayout from "@/components/layouts/Dashboard/DashboardLayout";
-import { getCurrentUser } from "@/lib/session";
 
-export default async function PlatformDashboardLayout({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "EduRit | Admin",
+  description: "Made with ❤️ by EduRit",
+};
+
+export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
   return (
-    <UserProvider user={user}>
-      <DashboardLayout>{children}</DashboardLayout>
-    </UserProvider>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Provider>
+          <UserProvider user={user}>
+            <DashboardLayout>{children}</DashboardLayout>
+          </UserProvider>
+        </Provider>
+      </body>
+    </html>
   );
 }
