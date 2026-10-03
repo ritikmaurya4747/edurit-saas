@@ -1,15 +1,18 @@
+'use client';
+import { useUser } from "@/providers/user-provider";
 import { Settings2 } from "lucide-react";
 
 const DashboardHeader = () => {
+  const user = useUser();
   return (
     <header className="mb-5 flex items-end justify-between">
       <div>
         <h1 className="font-serif text-[20px] font-semibold leading-tight text-[#0d1626]">
-          Good morning, Dr.
+          Good morning,
         </h1>
 
         <p className="mt-1 text-[11px] text-[#65758b]">
-          Here&apos;s how GreenWood is running today.
+          Here&apos;s how {user?.tenantName} is running today.
         </p>
       </div>
 

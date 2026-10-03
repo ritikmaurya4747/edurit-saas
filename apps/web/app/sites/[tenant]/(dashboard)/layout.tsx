@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layouts/Dashboard/DashboardLayout";
 import { UserProvider } from "@/providers/user-provider";
-import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function generateMetadata(): Promise<Metadata> {
   const user = await getCurrentUser();

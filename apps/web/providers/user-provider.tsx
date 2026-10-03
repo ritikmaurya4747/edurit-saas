@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { TenantUser } from "../lib/auth/get-current-user";
+import { TenantUser } from "../lib/auth/session";
 
 const UserContext = createContext<TenantUser | null>(null);
 

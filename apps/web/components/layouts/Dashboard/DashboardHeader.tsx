@@ -9,7 +9,6 @@ import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-au
 
 const DashboardHeader = () => {
   const user = useUser();
-  console.log("DashboardHeader user", user);
 
   return (
     <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
@@ -56,8 +55,7 @@ const DashboardHeader = () => {
           <div className="hidden sm:block leading-tight">
             <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
             <p className="mt-0.5 text-[11px] text-gray-400">
-              {/* {formatRole(user?.role)} */}
-              {user?.role}
+              {user?.roleName ?? formatRole(user?.role)}
             </p>
           </div>
         </div>
@@ -66,7 +64,7 @@ const DashboardHeader = () => {
         <form action={tenantLogoutAction}>
           <button
             type="submit"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-all duration-200 ease-in-out hover:bg-red-50 hover:text-red-600 hover:border-red-200 hover:shadow-sm active:scale-95 cursor-pointer"
             aria-label="Logout"
           >
             <LogoutIcon />
