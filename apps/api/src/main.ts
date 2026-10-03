@@ -97,6 +97,18 @@ async function bootstrap() {
 
   console.log(`🚀 API running on: http://localhost:${port}/v1`);
   console.log(`📑 Swagger Documentation: http://localhost:${port}/docs`);
+
+  // Keep-alive Server
+  if (process.env.NODE_ENV === "production") {
+    setInterval(
+      () => {
+        fetch("https://api.edurit.in/v1/health")
+          .then((res) => console.log(`keep-alive ping: ${res.status}`))
+          .catch((err) => console.log("keep-alive failed:", err.message));
+      },
+      10 * 60 * 1000,
+    );
+  }
 }
 
 bootstrap();
