@@ -19,6 +19,9 @@ export function proxy(request: NextRequest) {
   if (path === '/login' && token) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
+  if (path === '/' && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   // Allow the request to proceed normally
   return NextResponse.next();
