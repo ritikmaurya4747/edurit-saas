@@ -6,16 +6,11 @@ import { Navbar } from "./components/navigation/Navbar";
 import { Footer } from "./components/footer/Footer";
 import { EffectsBoot } from "./components/ui/EffectsBoot";
 
-const display = Plus_Jakarta_Sans({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-display",
   display: "swap",
-});
-
-const body = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
+  variable: "--font-plus-jakarta-sans",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -51,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`${plusJakartaSans.variable}`}>
       <body>
         <Navbar />
         <main>{children}</main>
