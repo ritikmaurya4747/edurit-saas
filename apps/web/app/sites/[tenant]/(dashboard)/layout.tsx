@@ -22,8 +22,6 @@ export default async function TenantDashboardLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await getCurrentUser();
 
-  if (!user) redirect("/login");
-
   return (
     <UserProvider user={user}>
       <DashboardLayout>{children}</DashboardLayout>

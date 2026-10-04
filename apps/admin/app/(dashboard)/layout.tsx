@@ -28,7 +28,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
 
   return (
     <html lang="en">
