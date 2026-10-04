@@ -17,11 +17,7 @@
   --clay: #e11d48;
 }
 
-/* ===== tailwind.config.ts ka poora theme ===== */
 @theme {
-  /* Fonts (font-display, font-body) */
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   /* Colors */
   --color-ink: #1d293d;
@@ -104,6 +100,14 @@
   }
 }
 
+/* Fonts come from next/font via the CSS variable set on <html>.
+   `inline` is required so the var() is resolved correctly. */
+@theme inline {
+  --font-display: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
 /* ===== Custom utilities (v4 mein @layer utilities ki jagah @utility) ===== */
 @utility container-content {
   @apply mx-auto max-w-content px-6 md:px-10;
@@ -135,7 +139,6 @@
 
   body {
     @apply bg-paper text-ink font-body antialiased;
-    font-feature-settings: "ss01" 1, "cv01" 1;
   }
 
   h1, h2, h3, h4 {
