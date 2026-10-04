@@ -26,8 +26,8 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en">
-      <body className={`${plusJakartaSans.variable}`}>
+    <html lang="en" className={`${plusJakartaSans.variable}`}>
+      <body>
         <Provider>
           <UserProvider user={user}>
             <DashboardLayout>{children}</DashboardLayout>
