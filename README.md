@@ -1,6 +1,6 @@
 # Examples for our apps:
 # admin app
-pnpm add axios --filter admin
+pnpm add axios --filter platform
 
 # api app
 pnpm add axios --filter api
@@ -30,7 +30,7 @@ pnpm remove <package-name> --filter <app-name>
 pnpm dev
 
 # Run a single app only
-pnpm dev --filter admin
+pnpm dev --filter platform
 pnpm dev --filter api
 pnpm dev --filter web
 pnpm dev --filter marketing
@@ -39,7 +39,7 @@ pnpm dev --filter marketing
 pnpm build
 
 # Build a single app
-pnpm build --filter admin
+pnpm build --filter platform
 
 <!-- Remove below files code in root packge-workspace.ysml  -->
 allowBuilds:
