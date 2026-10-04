@@ -27,7 +27,7 @@ interface CellContext {
 
 const Tenants = () => {
   // Using TanStack query with the clean getTenants action instead of direct fetch
-  const { data: tenants , isLoading, isError } = useTenantsQuery();
+  const { data: tenants, isLoading, isError } = useTenantsQuery();
 
   const columns = [
     {
@@ -36,7 +36,9 @@ const Tenants = () => {
       cell: ({ row }: CellContext) => (
         <div>
           <p className="font-semibold text-gray-900">{row.original.name}</p>
-          <p className="text-xs text-gray-400">{row.original.slug}.edurit.com</p>
+          <Link href={`https://${row.original.slug}.edurit.in`} className="text-xs text-gray-400" target="_blank">
+            {row.original.slug}.edurit.in
+          </Link>
         </div>
       ),
     },
