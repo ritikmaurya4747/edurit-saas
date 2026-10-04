@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sidebarData } from "../../../config/sidebarData"; 
+import { sidebarData } from "../../../config/sidebarData"; // use the same path your DashboardSidebar imports from
 import { logoutAction } from "@/app/(home)/login/_actions/auth";
 import { formatRole, getInitials } from "@/lib/dashboard";
 import { usePlatformUser } from "@/providers/user-provider";
@@ -11,29 +11,38 @@ import AlertIcon from "@repo/ui/icons/AlertIcon";
 import LogoutIcon from "@repo/ui/icons/LogoutIcon";
 
 const MobileSidebar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const user = usePlatformUser();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
   const name = user?.name || user?.email || "User";
   const initials = getInitials(user?.name || user?.email);
   const role = formatRole(user?.role);
 
-  // Close the drawer whenever the route changes
-  useEffect(() => {
+  // Close the drawer whenever the route changes.
+  // Adjusting state during render (instead of in an effect) avoids cascading renders.
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setIsMenuOpen(false);
-  }, [pathname]);
+  }
 
   // While the drawer is open: lock body scroll and close on Escape
   useEffect(() => {
     if (!isMenuOpen) return;
+
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsMenuOpen(false);
-    window.addEventListener("keydown", onKey);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+
     return () => {
       document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [isMenuOpen]);
 
@@ -59,7 +68,15 @@ const MobileSidebar = () => {
             aria-expanded={isMenuOpen}
             className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-white active:bg-white/10"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
           </button>
@@ -123,7 +140,15 @@ const MobileSidebar = () => {
             aria-label="Close menu"
             className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-gray-300 active:bg-white/10"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
@@ -136,9 +161,11 @@ const MobileSidebar = () => {
               <p className="mb-2 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                 {section.section}
               </p>
+
               <div className="flex flex-col gap-1">
                 {section.items.map((item) => {
                   const active = isItemActive(item.url);
+
                   return (
                     <Link
                       key={item.url}
