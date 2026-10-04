@@ -12,12 +12,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <div className="lg:bg-[#16233F]">
       <div className="flex h-screen">
         {/* Sidebar */}
-        <div
-          className={`transition-all duration-300 ${isSidebarOpen ? "lg:w-60" : "lg:w-20"} w-0`}
-        >
-          <DashboardSidebar
-            isSidebarOpen={isSidebarOpen}
-          />
+        <div className={`transition-[width] duration-300 ease-in-out w-0 ${isSidebarOpen ? "lg:w-60" : "lg:w-20"}`}>
+          <DashboardSidebar isSidebarOpen={isSidebarOpen} />
           <MobileHeader />
         </div>
 
