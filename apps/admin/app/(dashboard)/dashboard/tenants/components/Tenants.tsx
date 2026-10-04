@@ -27,7 +27,7 @@ interface CellContext {
 
 const Tenants = () => {
   // Using TanStack query with the clean getTenants action instead of direct fetch
-  const { data: tenants = [], isLoading, isError } = useTenantsQuery();
+  const { data: tenants , isLoading, isError } = useTenantsQuery();
 
   const columns = [
     {
@@ -84,8 +84,6 @@ const Tenants = () => {
 
       {isLoading ? (
         <div className="text-center py-12 text-gray-500">Loading tenants...</div>
-      ) : isError ? (
-        <div className="text-center py-12 text-red-500">Failed to load schools data. Please check your connection.</div>
       ) : (
         <DataTable columns={columns} data={tenants} />
       )}

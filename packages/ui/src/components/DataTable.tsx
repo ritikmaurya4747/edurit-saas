@@ -28,7 +28,7 @@ export function DataTable<TData, TValue>({
       <div className="overflow-x-auto w-full">
         <table className="min-w-full w-full text-left border-collapse">
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table?.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="bg-[#FCFBF8] border-b border-gray-200">
                 {headerGroup.headers.map((header) => (
                   <th
@@ -47,7 +47,7 @@ export function DataTable<TData, TValue>({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows?.length ? (
+            {table?.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
