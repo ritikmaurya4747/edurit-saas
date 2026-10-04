@@ -36,8 +36,31 @@ const Tenants = () => {
       cell: ({ row }: CellContext) => (
         <div>
           <p className="font-semibold text-gray-900">{row.original.name}</p>
-          <Link href={`https://${row.original.slug}.edurit.in`} className="text-xs text-gray-400" target="_blank">
+
+          <Link
+            href={`https://${row.original.slug}.edurit.in`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-0.5 inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700 hover:underline underline-offset-2"
+          >
             {row.original.slug}.edurit.in
+
+            {/* External link icon */}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0 opacity-70 transition-transform duration-200 group-hover:-translate-y-px group-hover:translate-x-px group-hover:opacity-100"
+              aria-hidden="true"
+            >
+              <path d="M7 17 17 7" />
+              <path d="M8 7h9v9" />
+            </svg>
           </Link>
         </div>
       ),
