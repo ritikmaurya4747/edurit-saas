@@ -21,7 +21,8 @@ const DashboardHeader = ({
 
   return (
     <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
-      <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
+      <div className="flex gap-4 items-center">
+        <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? (
             <BurgerMenuLeft stroke="#000000" className="cursor-pointer" />
@@ -34,6 +35,7 @@ const DashboardHeader = ({
         <h2 className="text-sm">{user?.tenantName}</h2>
         {" / "}
         <h2 className="text-sm">Dashboard</h2>
+      </div>
       </div>
 
       <div className="flex gap-4 items-center">
