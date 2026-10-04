@@ -15,14 +15,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:w-60' : 'lg:w-20'} w-0`}>
                     <DashboardSidebar
                         isSidebarOpen={isSidebarOpen}
-                        setIsSidebarOpen={setIsSidebarOpen}
                     />
                     <MobileHeader />
                 </div>
 
                 {/* Main content / Header */}
                 <div className="flex flex-1 flex-col bg-white w-full [80px] text-black">
-                    <DashboardHeader />
+                    <DashboardHeader
+                        isSidebarOpen={isSidebarOpen}
+                        setIsSidebarOpen={setIsSidebarOpen}
+                    />
                     <main className='flex-1 overflow-y-auto bg-[#F5F4EF] px-5 lg:p-6 max-sm:py-20 text-primary'>
                         {children}
                     </main>

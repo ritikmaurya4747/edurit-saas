@@ -13,6 +13,7 @@ interface DashboardHeaderProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
+
 const DashboardHeader = ({
   isSidebarOpen,
   setIsSidebarOpen,
@@ -27,9 +28,9 @@ const DashboardHeader = ({
       <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? (
-            <BurgerMenuLeft stroke="#000000" />
+            <BurgerMenuLeft stroke="#000000" className="cursor-pointer" />
           ) : (
-            <BurgerMenuRight stroke="#000000" />
+            <BurgerMenuRight stroke="#000000" className="cursor-pointer" />
           )}
         </button>
       </div>

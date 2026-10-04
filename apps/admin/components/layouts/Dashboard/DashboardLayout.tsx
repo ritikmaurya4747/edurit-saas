@@ -17,13 +17,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         >
           <DashboardSidebar
             isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
           />
           <MobileHeader />
         </div>
 
         {/* Main content / Header */}
-        <div className="flex flex-1 flex-col bg-white w-full [80px] text-black">
+        <div className="flex flex-1 flex-col bg-white w-full text-black">
           <DashboardHeader
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}

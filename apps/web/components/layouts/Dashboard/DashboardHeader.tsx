@@ -1,17 +1,35 @@
 "use client";
 
+import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
+import { formatRole, getInitials } from "@/lib/utils/format";
+import { useUser } from "@/providers/user-provider";
+import { BurgerMenuLeft, BurgerMenuRight } from "@repo/ui/icons";
 import AlertIcon from "@repo/ui/icons/AlertIcon";
 import LogoutIcon from "@repo/ui/icons/LogoutIcon";
 import SearchIcon from "@repo/ui/icons/SearchIcon";
-import { useUser } from "@/providers/user-provider";
-import { formatRole, getInitials } from "@/lib/utils/format";
-import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
 
-const DashboardHeader = () => {
+interface DashboardSidebarProps {
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (val: boolean) => void;
+}
+
+const DashboardHeader = ({
+  isSidebarOpen,
+  setIsSidebarOpen,
+}: DashboardSidebarProps) => {
   const user = useUser();
 
   return (
     <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
+      <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          {isSidebarOpen ? (
+            <BurgerMenuLeft stroke="#000000" className="cursor-pointer" />
+          ) : (
+            <BurgerMenuRight stroke="#000000" className="cursor-pointer" />
+          )}
+        </button>
+      </div>
       <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
         <h2 className="text-sm">{user?.tenantName}</h2>
         {" / "}
