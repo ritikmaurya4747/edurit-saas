@@ -20,7 +20,7 @@ const PlatformDashboard = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Platform Super Admin Dashboard</h1>
+          <h1 className="text-xl font-bold text-gray-900">Platform Super Admin Dashboard</h1>
           <p className="text-sm text-gray-600">Centralized control panel for multi-tenant school ERP management.</p>
         </div>
         <div className="flex items-center gap-3">

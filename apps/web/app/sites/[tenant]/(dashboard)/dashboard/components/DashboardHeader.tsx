@@ -7,7 +7,7 @@ const DashboardHeader = () => {
   return (
     <header className="mb-5 flex items-end justify-between">
       <div>
-        <h1 className="font-serif text-[20px] font-semibold leading-tight text-[#0d1626]">
+        <h1 className="text-[20px] font-semibold leading-tight text-[#0d1626]">
           Good morning,
         </h1>
 
