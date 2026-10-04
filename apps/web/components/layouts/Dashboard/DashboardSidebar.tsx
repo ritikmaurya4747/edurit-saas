@@ -32,9 +32,20 @@ const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
         {/* Nav Items */}
         <div className="flex flex-col py-5 overflow-y-auto overflow-x-hidden px-2">
           {sidebarData.map((section, sectionIndex) => (
-            <div key={section.section} className={sectionIndex === 0 ? "" : "mt-6"}>
+            <div
+              key={section.section}
+              className={`transition-[margin,padding] duration-300 ease-in-out ${sectionIndex === 0
+                ? ""
+                : isSidebarOpen
+                  ? "mt-2"
+                  : "mt-1 pt-0.5 border-white/10"
+                }`}
+            >
               <p
-                className={`px-4 mb-2 h-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500 whitespace-nowrap ${fade}`}
+                className={`px-4 overflow-hidden whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-gray-500 transition-all duration-300 ease-in-out ${isSidebarOpen
+                  ? "h-4 mb-2 opacity-100 delay-100"
+                  : "h-0 mb-0 opacity-0 pointer-events-none"
+                  }`}
               >
                 {section.section}
               </p>
@@ -49,14 +60,14 @@ const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
                       href={item.url || "#"}
                       title={!isSidebarOpen ? item.label : undefined}
                       className={`group relative flex items-center gap-3 border-l-4 rounded-lg py-2.5 pl-4.5 pr-3 transition-colors duration-200 ${isActive
-                          ? "border-[#c8860f] bg-white/10"
-                          : "border-transparent hover:bg-white/5"
+                        ? "border-[#c8860f] bg-white/10"
+                        : "border-transparent hover:bg-white/5"
                         }`}
                     >
                       <span
                         className={`flex items-center justify-center shrink-0 w-5 h-5 transition-colors duration-200 ${isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-white"
+                          ? "text-white"
+                          : "text-gray-400 group-hover:text-white"
                           }`}
                       >
                         {item.icon}
@@ -64,8 +75,8 @@ const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
 
                       <p
                         className={`text-sm whitespace-nowrap transition-colors duration-200 ${fade} ${isActive
-                            ? "font-semibold text-white"
-                            : "font-medium text-gray-400 group-hover:text-white"
+                          ? "font-semibold text-white"
+                          : "font-medium text-gray-400 group-hover:text-white"
                           }`}
                       >
                         {item.label}
