@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sidebarData } from "../../../config/sidebarData";
-import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
-import { formatRole, getInitials } from "@/lib/utils/format";
-import { useUser } from "@/providers/user-provider";
-import LogoutIcon from "@repo/ui/icons/LogoutIcon";
+import { sidebarData } from "../../../config/sidebarData"; 
+import { logoutAction } from "@/app/(home)/login/_actions/auth";
+import { formatRole, getInitials } from "@/lib/dashboard";
+import { usePlatformUser } from "@/providers/user-provider";
 import AlertIcon from "@repo/ui/icons/AlertIcon";
+import LogoutIcon from "@repo/ui/icons/LogoutIcon";
 
-const MobileHeader = () => {
+const MobileSidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const user = useUser();
+  const user = usePlatformUser();
+
+  const name = user?.name || user?.email || "User";
+  const initials = getInitials(user?.name || user?.email);
+  const role = formatRole(user?.role);
 
   // Close the drawer whenever the route changes
   useEffect(() => {
@@ -34,7 +38,8 @@ const MobileHeader = () => {
   }, [isMenuOpen]);
 
   // "/dashboard" must match exactly, otherwise it would stay active on every sub-route.
-  // Other items also match nested routes via startsWith.
+  // Other items also match nested routes (the trailing "/" keeps
+  // "/dashboard/tenants" from matching "/dashboard/tenants-create").
   const isItemActive = (url?: string) => {
     if (!url) return false;
     return url === "/dashboard"
@@ -78,7 +83,7 @@ const MobileHeader = () => {
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#16233F]" />
           </button>
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-700">
-            {getInitials(user?.name)}
+            {initials}
           </div>
         </div>
       </header>
@@ -109,9 +114,7 @@ const MobileHeader = () => {
             </div>
             <div className="min-w-0 leading-tight">
               <h1 className="text-base font-bold">EduRit</h1>
-              {user?.tenantName && (
-                <p className="truncate text-[11px] text-gray-400">{user.tenantName}</p>
-              )}
+              <p className="text-[11px] text-gray-400">Platform Admin</p>
             </div>
           </div>
           <button
@@ -164,15 +167,13 @@ const MobileHeader = () => {
         <div className="border-t border-white/10 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
-              {getInitials(user?.name)}
+              {initials}
             </div>
             <div className="min-w-0 flex-1 leading-tight">
-              <p className="truncate text-sm font-semibold">{user?.name}</p>
-              <p className="mt-0.5 truncate text-[11px] text-gray-400">
-                {user?.roleName ?? formatRole(user?.role)}
-              </p>
+              <p className="truncate text-sm font-semibold">{name}</p>
+              <p className="mt-0.5 truncate text-[11px] text-gray-400">{role}</p>
             </div>
-            <form action={tenantLogoutAction}>
+            <form action={logoutAction}>
               <button
                 type="submit"
                 aria-label="Logout"
@@ -188,4 +189,4 @@ const MobileHeader = () => {
   );
 };
 
-export default MobileHeader;
+export default MobileSidebar;
