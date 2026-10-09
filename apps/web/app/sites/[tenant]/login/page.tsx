@@ -19,14 +19,17 @@ const Field = ({ label, type, value, onChange, placeholder, right, disabled }: F
         <label className="text-sm font-semibold text-gray-700 block mb-1.5">{label}</label>
         <div className="relative">
             <input
-                type={type} 
-                value={value} 
+                type={type}
+                value={value}
                 placeholder={placeholder}
                 disabled={disabled}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
                 className={`w-full px-4 py-2.5 border-[1.5px] border-gray-200 rounded-xl text-sm text-slate-800 outline-none font-['Outfit',sans-serif] transition-colors duration-150 box-border focus:border-blue-600 disabled:opacity-60 disabled:bg-gray-50 ${right ? 'pr-11' : 'pr-4'}`}
             />
-            {right && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{right}</div>}
+            {right &&
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                    {right}
+                </div>}
         </div>
     </div>
 )
@@ -42,30 +45,30 @@ const Login = () => {
     const [showPass, setShowPass] = useState(false)
     const [remember, setRemember] = useState(false)
     const [error, setError] = useState('')
-    
+
     const [isPending, startTransition] = useTransition()
 
     // URL slug ko proper readable Name me convert karna (e.g., 'lavkush-school' -> 'Lavkush School')
-    const schoolName = tenantSlug 
+    const schoolName = tenantSlug
         ? tenantSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
         : 'School';
-        
+
     const schoolInitial = schoolName.charAt(0).toUpperCase();
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        if (!email || !password) { 
+        if (!email || !password) {
             setError('Please fill in all fields.')
-            return 
+            return
         }
-        
+
         setError('')
-        
+
         startTransition(async () => {
-            const result = await tenantLoginAction({ 
-                email, 
-                password, 
-                tenantSlug 
+            const result = await tenantLoginAction({
+                email,
+                password,
+                tenantSlug
             })
 
             if (!result?.success && result?.message) {
@@ -143,20 +146,20 @@ const Login = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
-                        <Field 
-                            label="Email address" 
-                            type="email" 
-                            value={email} 
-                            onChange={setEmail} 
+                        <Field
+                            label="Email address"
+                            type="email"
+                            value={email}
+                            onChange={setEmail}
                             placeholder={"mohit@gmil.com"}
                             disabled={isPending}
                         />
-                        
-                        <Field 
-                            label="Password" 
-                            type={showPass ? 'text' : 'password'} 
-                            value={password} 
-                            onChange={setPassword} 
+
+                        <Field
+                            label="Password"
+                            type={showPass ? 'text' : 'password'}
+                            value={password}
+                            onChange={setPassword}
                             placeholder="Enter your password"
                             disabled={isPending}
                             right={
