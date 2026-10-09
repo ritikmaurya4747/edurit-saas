@@ -11,7 +11,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     const res = await axiosInstance.get("auth/me");
 
     const payload = res.data?.data ?? res.data;
-    const { user, tenant, roles = [], permissions = [], isAdmin = false, staffId = null } = payload;
+    const { user, tenant, roles = [], permissions = [], isAdmin = false, staffId = null, mustChangePassword = false } = payload;
 
     return {
       id: user.id,
@@ -27,6 +27,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
       permissions,
       isAdmin,
       staffId,
+      mustChangePassword,
       tenantId: tenant.id,
       tenantName: tenant.name,
       tenantSlug: tenant.slug,

@@ -8,6 +8,7 @@ import { useApiMutation, useDebounce, usePaginatedQuery } from "@/lib/api/hooks"
 import { humanize } from "@/lib/utils/format";
 import { useUser } from "@/providers/user-provider";
 import EditMemberRolesModal from "./EditMemberRolesModal";
+import CredentialsSheet, { type IssuedCredential } from "@/components/credentials/CredentialsSheet";
 import { ADMIN_ROLE_CODE, ROLES_KEYS, type MemberRecord, type MemberStatus, type ProfileType, type RoleRecord } from "./types";
 
 const statusTone: Record<MemberStatus, BadgeTone> = { ACTIVE: "green", SUSPENDED: "red", INVITED: "yellow" };
@@ -39,6 +40,23 @@ const MembersTab = ({ roles }: { roles: RoleRecord[] }) => {
       invalidate: [["roles"]],
       success: () => (statusTarget?.status === "SUSPENDED" ? "User suspended" : "User activated"),
       onSuccess: () => setStatusTarget(null),
+    },
+  );
+
+  const [resetTarget, setResetTarget] = useState<MemberRecord | null>(null);
+  const [issued, setIssued] = useState<IssuedCredential[] | null>(null);
+  const resetPassword = useApiMutation(
+    (m: MemberRecord) =>
+      api.post<{ name: string; loginId: string; temporaryPassword: string }>(`members/${m.membershipId}/reset-password`),
+    {
+      invalidate: [["roles"]],
+      onSuccess: (r) => {
+        const role = resetTarget?.profileType === "STAFF" || resetTarget?.profileType === "PARENT" || resetTarget?.profileType === "STUDENT"
+          ? resetTarget.profileType
+          : "USER";
+        setResetTarget(null);
+        setIssued([{ role, name: r.name, loginId: r.loginId, temporaryPassword: r.temporaryPassword }]);
+      },
     },
   );
 
@@ -99,6 +117,11 @@ const MembersTab = ({ roles }: { roles: RoleRecord[] }) => {
               <Button variant="secondary" size="sm" onClick={() => setEditing(m)}>
                 Edit roles
               </Button>
+              {!isSelf && (
+                <Button variant="ghost" size="sm" onClick={() => setResetTarget(m)}>
+                  Reset password
+                </Button>
+              )}
               {m.status === "SUSPENDED" ? (
                 <Button
                   variant="ghost"
@@ -224,6 +247,19 @@ const MembersTab = ({ roles }: { roles: RoleRecord[] }) => {
         }
         confirmLabel={statusTarget?.status === "SUSPENDED" ? "Suspend" : "Activate"}
       />
+
+      <ConfirmDialog
+        open={!!resetTarget}
+        onClose={() => setResetTarget(null)}
+        onConfirm={() => resetTarget && resetPassword.mutate(resetTarget)}
+        loading={resetPassword.isPending}
+        tone="primary"
+        title={`Reset password for ${resetTarget?.name}?`}
+        message="A new temporary password is generated and shown once. Their current password stops working, and they must set a new one at next login."
+        confirmLabel="Reset password"
+      />
+
+      <CredentialsSheet open={!!issued} onClose={() => setIssued(null)} credentials={issued ?? []} title="Password reset" />
     </div>
   );
 };

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ClipboardCheck, Clock, Pencil, Phone, UserCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui";
 import { formatDate, formatDateTime } from "@/lib/utils/format";
-import { PIPELINE_STAGES, STAGE_LABEL, sourceLabel, type Enquiry, type EnquiryActions } from "../types";
+import { ONLINE_FORM_SOURCE, PIPELINE_STAGES, STAGE_LABEL, sourceLabel, type Enquiry, type EnquiryActions } from "../types";
+import SourceLabel from "./SourceLabel";
 
 const ADMITTED_SHOWN = 20;
 
@@ -54,8 +55,14 @@ const PipelineCard = ({ enquiry: e, actions }: { enquiry: Enquiry; actions: Enqu
         <div className="min-w-0">
           <h4 className="truncate text-sm font-bold text-gray-900">{e.studentName}</h4>
           <p className="text-xs text-gray-500">
-            {e.classApplied} · {sourceLabel(e.source)}
+            {e.classApplied}
+            {e.source !== ONLINE_FORM_SOURCE && <> · {sourceLabel(e.source)}</>}
           </p>
+          {e.source === ONLINE_FORM_SOURCE && (
+            <div className="mt-1">
+              <SourceLabel source={e.source} />
+            </div>
+          )}
         </div>
         {actions.canManage && !admitted && (
           <button

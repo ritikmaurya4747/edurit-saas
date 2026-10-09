@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import DashboardHeader from './DashboardHeader'
 import DashboardSidebar from './DashboardSidebar'
 import MobileSidebar from './MobileSidebar'
+import ForcePasswordChange from './ForcePasswordChange'
 interface DashboardLayoutProps {
     children: React.ReactNode
 }
@@ -28,6 +29,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <main className='flex-1 overflow-y-auto bg-[#F5F4EF] px-5 lg:p-6 max-sm:py-20 text-primary'>
                         {children}
                     </main>
+                    <ForcePasswordChange />
                 </div>
             </div>
         </div>

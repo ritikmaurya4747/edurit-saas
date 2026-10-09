@@ -6,7 +6,7 @@ import { api } from "@/lib/api/client";
 import { useApiMutation } from "@/lib/api/hooks";
 import { useClasses } from "@/lib/api/lookups";
 import { toDateInput, todayInput } from "@/lib/utils/format";
-import { GENDER_OPTIONS, SOURCE_OPTIONS, type Enquiry } from "../types";
+import { GENDER_OPTIONS, ONLINE_FORM_SOURCE, SOURCE_OPTIONS, type Enquiry } from "../types";
 
 type Form = {
   studentName: string;
@@ -112,7 +112,16 @@ const EnquiryForm = ({ enquiry, onClose }: { enquiry: Enquiry | null; onClose: (
           <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
         </Field>
         <Field label="Source" className="col-span-2 sm:col-span-1">
-          <Select value={form.source} onChange={(e) => set("source", e.target.value)} options={SOURCE_OPTIONS} />
+          <Select
+            value={form.source}
+            onChange={(e) => set("source", e.target.value)}
+            options={
+              // "Online form" is only kept for enquiries that came from the public form.
+              enquiry?.source === ONLINE_FORM_SOURCE
+                ? [...SOURCE_OPTIONS, { value: ONLINE_FORM_SOURCE, label: "Online form" }]
+                : SOURCE_OPTIONS
+            }
+          />
         </Field>
         <Field label="Date of birth" className="col-span-2 sm:col-span-1">
           <Input type="date" max={todayInput()} value={form.dob} onChange={(e) => set("dob", e.target.value)} />

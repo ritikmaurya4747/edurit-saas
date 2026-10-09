@@ -27,6 +27,7 @@ import { LibraryModule } from "./modules/library/library.module";
 import { CertificatesModule } from "./modules/certificates/certificates.module";
 import { PortalModule } from "./modules/portal/portal.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { ImportsModule } from "./modules/imports/imports.module";
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { NotificationsModule } from "./modules/notifications/notifications.modul
     LibraryModule,
     CertificatesModule,
     NotificationsModule,
+    ImportsModule,
     // Student & parent self-service (only their own / their children's data)
     PortalModule,
   ],

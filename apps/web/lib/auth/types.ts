@@ -12,6 +12,7 @@ export interface SessionUser {
   permissions: string[];
   isAdmin: boolean;
   staffId: string | null;
+  mustChangePassword: boolean;
   tenantId: string;
   tenantName: string;
   tenantSlug: string;

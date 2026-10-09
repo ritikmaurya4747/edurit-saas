@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FileSpreadsheet, Plus } from "lucide-react";
 import { Button, EmptyState, PageHeader, Tabs, type TabItem } from "@/components/ui";
 import { PERMISSIONS, useCan } from "@/lib/auth/permissions";
 import type { StaffCreateResult, StaffItem } from "../types";
@@ -18,6 +19,7 @@ type HrTab = "directory" | "leaves" | "attendance" | "appraisals" | "payroll";
 
 const StaffHrPage = () => {
   const can = useCan();
+  const router = useRouter();
   const tabs: TabItem<HrTab>[] = [
     ...(can(PERMISSIONS.STAFF_READ) ? [{ id: "directory" as const, label: "Directory" }] : []),
     { id: "leaves", label: "Leave management" },
@@ -43,9 +45,14 @@ const StaffHrPage = () => {
         description="Manage employee directory, leave requests, attendance, appraisals, and payroll"
         actions={
           can(PERMISSIONS.STAFF_CREATE) && (
-            <Button onClick={openAdd}>
-              <Plus className="h-4 w-4" /> Add Staff
-            </Button>
+            <>
+              <Button variant="secondary" onClick={() => router.push("/dashboard/staff-hr/import")}>
+                <FileSpreadsheet className="h-4 w-4" /> Import from Excel
+              </Button>
+              <Button onClick={openAdd}>
+                <Plus className="h-4 w-4" /> Add Staff
+              </Button>
+            </>
           )
         }
       />

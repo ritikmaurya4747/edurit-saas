@@ -30,38 +30,38 @@ export class AuthService {
       throw new UnauthorizedException('This school account is suspended. Please contact support.');
     }
 
-    // 2. Find user via ACTIVE Membership in this specific tenant, and include their roles
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-        memberships: {
-          some: {
-            tenantId: tenant.id,
-            status: 'ACTIVE',
-          },
-        },
-      },
-      include: {
-        memberships: {
-          where: { tenantId: tenant.id },
+    // 2. Resolve the login id (email / mobile / admission number) to a user
+    //    with an ACTIVE membership in this school, including their roles.
+    const userId = await this.resolveLoginUserId(tenant.id, email);
+    const user = userId
+      ? await this.prisma.user.findFirst({
+          where: { id: userId, memberships: { some: { tenantId: tenant.id, status: 'ACTIVE' } } },
           include: {
-            roles: {
-              include: { role: true },
+            memberships: {
+              where: { tenantId: tenant.id },
+              include: {
+                roles: {
+                  include: { role: true },
+                },
+              },
             },
           },
-        },
-      },
-    });
+        })
+      : null;
 
+    // Same message for unknown user and wrong password (no account enumeration).
+    const invalid = 'Invalid login ID or password for this school.';
     if (!user || user.memberships.length === 0 || !user.isActive || user.deletedAt) {
-      throw new UnauthorizedException('Invalid credentials for this school.');
+      throw new UnauthorizedException(invalid);
     }
 
     // 3. Compare with passwordHash
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password.');
+      throw new UnauthorizedException(invalid);
     }
+
+    await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
 
     // 4. Extract Role Codes (e.g., ['ADMIN', 'TEACHER'])
     const userRoles = user.memberships[0].roles.map((mr) => mr.role.code);
@@ -81,6 +81,7 @@ export class AuthService {
         email: user.email,
         name: `${user.firstName} ${user.lastName}`,
         roles: userRoles,
+        mustChangePassword: user.mustChangePassword,
       },
       tenant: {
         id: tenant.id,
@@ -88,6 +89,43 @@ export class AuthService {
         name: tenant.name,
       },
     };
+  }
+
+  // Login id → user id, scoped to the school:
+  //  - contains "@"   → email
+  //  - mostly digits  → mobile number (must match exactly one active member)
+  //  - otherwise      → student admission number
+  private async resolveLoginUserId(tenantId: string, rawId: string): Promise<string | null> {
+    const id = rawId.trim();
+    if (id.includes('@')) {
+      const user = await this.prisma.user.findUnique({ where: { email: id.toLowerCase() }, select: { id: true } });
+      return user?.id ?? null;
+    }
+
+    const digits = id.replace(/[\s()+-]/g, '');
+    if (/^\d{8,15}$/.test(digits)) {
+      const last10 = digits.slice(-10);
+      const users = await this.prisma.user.findMany({
+        where: {
+          deletedAt: null,
+          phone: { endsWith: last10 },
+          memberships: { some: { tenantId, status: 'ACTIVE' } },
+        },
+        select: { id: true, phone: true },
+        take: 3,
+      });
+      const matches = users.filter((u) => (u.phone ?? '').replace(/\D/g, '').endsWith(last10));
+      if (matches.length > 1) {
+        throw new UnauthorizedException('More than one account uses this mobile number. Please sign in with your email or admission number.');
+      }
+      if (matches.length === 1) return matches[0].id;
+    }
+
+    const student = await this.prisma.student.findFirst({
+      where: { tenantId, deletedAt: null, admissionNumber: { equals: id, mode: 'insensitive' } },
+      select: { userId: true },
+    });
+    return student?.userId ?? null;
   }
 
   async getMe(authUser: AuthUser) {
@@ -104,6 +142,7 @@ export class AuthService {
             firstName: true,
             lastName: true,
             avatarUrl: true,
+            mustChangePassword: true,
           },
         },
         tenant: {
@@ -145,6 +184,7 @@ export class AuthService {
       permissions: authUser.permissions,
       isAdmin: authUser.isAdmin,
       staffId: authUser.staffId,
+      mustChangePassword: membership.user.mustChangePassword,
     };
   }
 
@@ -160,7 +200,7 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: userId },
-      data: { passwordHash: await bcrypt.hash(dto.newPassword, 10) },
+      data: { passwordHash: await bcrypt.hash(dto.newPassword, 10), mustChangePassword: false },
     });
     return { changed: true };
   }

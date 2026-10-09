@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ADMIN_ROLE_CODE, Prisma } from '@edurit/database';
 import { PrismaService } from '../../core/database/prisma.service';
 import { AuditService } from '../../common/services/audit.service';
+import { CredentialsService } from '../../common/services/credentials.service';
 import type { AuthUser } from '../../common/types/auth-user';
 import { getPagination, paginated } from '../../common/utils/pagination';
 import { ListMembersQueryDto, SetMemberRolesDto, SetMemberStatusDto } from './dto/users.dto';
@@ -13,6 +14,7 @@ export class MembersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly credentials: CredentialsService,
   ) {}
 
   async list(tenantId: string, query: ListMembersQueryDto) {
@@ -158,6 +160,35 @@ export class MembersService {
     });
 
     return { membershipId, status: updated.status };
+  }
+
+  // Issues a one-time temporary password (must be changed at next login).
+  // Not for your own account (use My Account → change password), and only an
+  // administrator may reset another administrator.
+  async resetPassword(user: AuthUser, membershipId: string) {
+    if (membershipId === user.membershipId) {
+      throw new BadRequestException('Use My Account → Change password for your own account');
+    }
+    const membership = await this.prisma.membership.findFirst({
+      where: { id: membershipId, tenantId: user.tenantId },
+      select: {
+        user: { select: { id: true, email: true, phone: true, firstName: true, lastName: true } },
+        roles: { select: { role: { select: { code: true } } } },
+      },
+    });
+    if (!membership) throw new NotFoundException('User not found in this school');
+    if (membership.roles.some((r) => r.role.code === ADMIN_ROLE_CODE) && !user.isAdmin) {
+      throw new ForbiddenException("Only an administrator can reset another administrator's password");
+    }
+
+    const temporaryPassword = await this.credentials.setTemporaryPassword(user.tenantId, membership.user.id);
+    await this.audit.log(user, 'RESET_PASSWORD', 'Membership', membershipId, { user: membership.user.email });
+    return {
+      membershipId,
+      name: `${membership.user.firstName} ${membership.user.lastName}`.trim(),
+      loginId: await this.credentials.loginIdForUser(user.tenantId, membership.user),
+      temporaryPassword,
+    };
   }
 
   // The school must always keep at least one active administrator.

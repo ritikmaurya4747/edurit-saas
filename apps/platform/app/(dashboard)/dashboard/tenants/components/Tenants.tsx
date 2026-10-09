@@ -27,7 +27,7 @@ interface CellContext {
 
 const Tenants = () => {
   // Using TanStack query with the clean getTenants action instead of direct fetch
-  const { data: tenants, isLoading, isError } = useTenantsQuery();
+  const { data: tenants, isLoading } = useTenantsQuery();
 
   const columns = [
     {

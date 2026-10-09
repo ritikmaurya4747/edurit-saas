@@ -56,7 +56,10 @@ export class GuardianInputDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(32)
-  @Matches(/\d{6,}/, { message: 'Phone must contain at least 6 digits' })
+  // At least 6 digits in total; spaces, dashes, brackets and a leading + are
+  // allowed ("+91 98765 43210").
+  @Matches(/^\+?[\d\s().-]*$/, { message: 'Phone may only contain digits, spaces, dashes and a leading +' })
+  @Matches(/^(?:\D*\d){6,}\D*$/, { message: 'Phone must contain at least 6 digits' })
   phone: string;
 
   @ApiPropertyOptional({ example: 'rakesh@example.com' })

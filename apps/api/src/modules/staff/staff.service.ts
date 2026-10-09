@@ -250,6 +250,7 @@ export class StaffService {
             data: {
               email,
               passwordHash: passwordHash!,
+              mustChangePassword: true,
               firstName: dto.firstName.trim(),
               lastName: dto.lastName.trim(),
               phone: dto.phone?.trim() || null,
@@ -431,7 +432,7 @@ export class StaffService {
     const temporaryPassword = generatePassword();
     await this.prisma.user.update({
       where: { id: staff.userId },
-      data: { passwordHash: await bcrypt.hash(temporaryPassword, BCRYPT_ROUNDS) },
+      data: { passwordHash: await bcrypt.hash(temporaryPassword, BCRYPT_ROUNDS), mustChangePassword: true },
     });
     await this.audit.log(user, 'RESET_PASSWORD', 'Staff', id, {});
     return { temporaryPassword };

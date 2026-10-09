@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
   IsDateString,
   IsEmail,
   IsEnum,
@@ -17,7 +20,9 @@ import {
 } from 'class-validator';
 import { AdmissionStage } from '@edurit/database';
 
-export const ADMISSION_SOURCES = ['WALK_IN', 'WEBSITE', 'REFERRAL', 'PHONE', 'SOCIAL_MEDIA', 'OTHER'] as const;
+// ONLINE_FORM is set by the public admission form (PublicModule); accepted here so
+// staff can edit those enquiries without changing their source.
+export const ADMISSION_SOURCES = ['WALK_IN', 'WEBSITE', 'REFERRAL', 'PHONE', 'SOCIAL_MEDIA', 'ONLINE_FORM', 'OTHER'] as const;
 const GENDERS = ['MALE', 'FEMALE', 'OTHER'];
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
@@ -182,4 +187,35 @@ export class AdmitEnquiryDto {
   @Transform(emptyToUndefined)
   @IsUUID()
   academicYearId?: string;
+}
+
+// Stored in TenantSettings.themeConfig.admissions (other themeConfig keys are kept).
+export class UpdateOnlineFormSettingsDto {
+  @ApiProperty({ example: true, description: 'Accept enquiries from the public /apply form' })
+  @IsBoolean()
+  onlineFormEnabled: boolean;
+
+  @ApiPropertyOptional({ example: 'Admissions open for 2026-27. Our office will call you within 2 working days.' })
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(1000)
+  formMessage?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ['Nursery', 'Class 1'], description: 'Class names offered; empty = all classes' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(200)
+  @Transform(({ value }) => (Array.isArray(value) ? value.map((v) => (typeof v === 'string' ? v.trim() : v)) : value))
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @MaxLength(64, { each: true })
+  classesOpen?: string[];
+
+  @ApiPropertyOptional({ example: '2026-27' })
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(32)
+  academicYearLabel?: string;
 }

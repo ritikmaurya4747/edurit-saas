@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TenantAuth } from '../../common/decorators/tenant-auth.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -27,6 +27,13 @@ export class MembersController {
     @Body() dto: SetMemberRolesDto,
   ) {
     return this.service.setRoles(user, membershipId, dto);
+  }
+
+  @Post(':membershipId/reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Issue a one-time temporary password (user must change it at next login)' })
+  resetPassword(@CurrentUser() user: AuthUser, @Param('membershipId', ParseUUIDPipe) membershipId: string) {
+    return this.service.resetPassword(user, membershipId);
   }
 
   @Post(':membershipId/status')

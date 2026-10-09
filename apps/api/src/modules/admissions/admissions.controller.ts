@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions, TenantAuth } from '../../common/decorators/tenant-auth.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -10,6 +10,7 @@ import {
   AdmitEnquiryDto,
   CreateAdmissionDto,
   UpdateAdmissionDto,
+  UpdateOnlineFormSettingsDto,
   UpdateStageDto,
 } from './dto/admissions.dto';
 
@@ -29,6 +30,19 @@ export class AdmissionsController {
   @ApiOperation({ summary: 'Enquiry count per stage, total and conversion rate (%)' })
   stats(@CurrentUser('tenantId') tenantId: string) {
     return this.service.stats(tenantId);
+  }
+
+  @Get('online-form/settings')
+  @ApiOperation({ summary: 'Online admission form settings (enabled, message, classes offered) and its public path' })
+  getOnlineFormSettings(@CurrentUser('tenantId') tenantId: string) {
+    return this.service.getOnlineFormSettings(tenantId);
+  }
+
+  @Put('online-form/settings')
+  @RequirePermissions(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: 'Enable/disable the public online admission form and set its message and classes' })
+  updateOnlineFormSettings(@CurrentUser() user: AuthUser, @Body() dto: UpdateOnlineFormSettingsDto) {
+    return this.service.updateOnlineFormSettings(user, dto);
   }
 
   @Get(':id')

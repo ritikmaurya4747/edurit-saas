@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, GraduationCap, Phone, UserPlus } from "lucide-react";
+import { ArrowUpRight, FileSpreadsheet, GraduationCap, KeyRound, Phone, UserPlus } from "lucide-react";
 import { DataTable, type ColumnDef } from "@repo/ui";
 import { Badge, Button, EmptyState, PageHeader, Pagination, QueryState, SearchInput, Select } from "@/components/ui";
 import { useDebounce, usePaginatedQuery } from "@/lib/api/hooks";
@@ -147,6 +147,16 @@ const StudentsPage = () => {
             {canUpdate && (
               <Button variant="secondary" onClick={() => setPromoteOpen(true)}>
                 <ArrowUpRight className="h-4 w-4" /> Promote
+              </Button>
+            )}
+            {canCreate && (
+              <Button variant="secondary" onClick={() => router.push("/dashboard/students/import")}>
+                <FileSpreadsheet className="h-4 w-4" /> Import from Excel
+              </Button>
+            )}
+            {can(PERMISSIONS.STUDENT_UPDATE) && (
+              <Button variant="secondary" onClick={() => router.push("/dashboard/students/logins")}>
+                <KeyRound className="h-4 w-4" /> Portal logins
               </Button>
             )}
             {canCreate && (

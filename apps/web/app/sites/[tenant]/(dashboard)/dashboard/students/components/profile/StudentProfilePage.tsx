@@ -15,8 +15,9 @@ import ChangeSectionModal from "./ChangeSectionModal";
 import EnrollmentTab from "./EnrollmentTab";
 import GuardiansTab from "./GuardiansTab";
 import OverviewTab from "./OverviewTab";
+import LoginsTab from "./LoginsTab";
 
-type TabId = "overview" | "guardians" | "enrollment";
+type TabId = "overview" | "guardians" | "enrollment" | "logins";
 
 const StudentProfilePage = () => {
   const params = useParams<{ studentId: string }>();
@@ -109,11 +110,13 @@ const StudentProfilePage = () => {
           { id: "overview", label: "Overview" },
           { id: "guardians", label: "Guardians", count: s.guardians.length },
           { id: "enrollment", label: "Enrollment history", count: s.enrollments.length },
+          { id: "logins", label: "Portal logins" },
         ]}
       />
 
       {tab === "overview" && <OverviewTab student={s} />}
       {tab === "guardians" && <GuardiansTab student={s} canManage={canUpdate} />}
+      {tab === "logins" && <LoginsTab studentId={s.id} canManage={canUpdate} />}
       {tab === "enrollment" && (
         <EnrollmentTab student={s} canManage={canUpdate} onChangeSection={() => setChangingSection(true)} />
       )}

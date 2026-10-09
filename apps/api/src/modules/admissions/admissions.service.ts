@@ -12,8 +12,16 @@ import {
   AdmitEnquiryDto,
   CreateAdmissionDto,
   UpdateAdmissionDto,
+  UpdateOnlineFormSettingsDto,
   UpdateStageDto,
 } from './dto/admissions.dto';
+import {
+  isPlainObject,
+  ONLINE_FORM_PUBLIC_PATH,
+  readOnlineFormSettings,
+  uniqueSorted,
+  type OnlineFormSettings,
+} from './online-form.settings';
 
 const GENDERS = ['MALE', 'FEMALE', 'OTHER'];
 
@@ -195,6 +203,53 @@ export class AdmissionsService {
       admissionNumber: created.admissionNumber,
     });
     return { enquiry: await this.findOrThrow(user.tenantId, id), student: created };
+  }
+
+  // ---- Online admission form settings (themeConfig.admissions) ----
+
+  async getOnlineFormSettings(tenantId: string) {
+    const settings = await this.prisma.tenantSettings.findUnique({ where: { tenantId }, select: { themeConfig: true } });
+    return { ...readOnlineFormSettings(settings?.themeConfig), publicPath: ONLINE_FORM_PUBLIC_PATH };
+  }
+
+  async updateOnlineFormSettings(user: AuthUser, dto: UpdateOnlineFormSettingsDto) {
+    const [settings, classes] = await Promise.all([
+      this.prisma.tenantSettings.findUnique({ where: { tenantId: user.tenantId }, select: { themeConfig: true } }),
+      this.prisma.class.findMany({ where: { tenantId: user.tenantId, deletedAt: null }, select: { name: true } }),
+    ]);
+
+    // Map to the school's own spelling of each class; reject unknown names.
+    const byLower = new Map(classes.map((c) => [c.name.trim().toLowerCase(), c.name.trim()]));
+    const requested = uniqueSorted(dto.classesOpen ?? []);
+    const unknown = requested.filter((name) => !byLower.has(name.toLowerCase()));
+    if (unknown.length) {
+      throw new BadRequestException(`These classes do not exist in your school: ${unknown.join(', ')}`);
+    }
+
+    const current = readOnlineFormSettings(settings?.themeConfig);
+    const next: OnlineFormSettings = {
+      onlineFormEnabled: dto.onlineFormEnabled,
+      formMessage: dto.formMessage ?? current.formMessage,
+      classesOpen: dto.classesOpen === undefined ? current.classesOpen : requested.map((n) => byLower.get(n.toLowerCase())!),
+      academicYearLabel: dto.academicYearLabel ?? current.academicYearLabel,
+    };
+
+    // Merge: keep every other themeConfig key (profile, branding, ...) and any
+    // other keys already stored under `admissions`.
+    const theme = isPlainObject(settings?.themeConfig) ? settings.themeConfig : {};
+    const storedAdmissions = isPlainObject(theme.admissions) ? theme.admissions : {};
+    const themeConfig = { ...theme, admissions: { ...storedAdmissions, ...next } } as Prisma.InputJsonObject;
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.tenantSettings.upsert({
+        where: { tenantId: user.tenantId },
+        update: { themeConfig },
+        create: { tenantId: user.tenantId, themeConfig },
+      });
+      await this.audit.log(user, 'UPDATE', 'OnlineAdmissionForm', null, { from: current, to: next }, tx);
+    });
+
+    return { ...next, publicPath: ONLINE_FORM_PUBLIC_PATH };
   }
 
   private async appendNote(tenantId: string, existing: string | null, note: string) {

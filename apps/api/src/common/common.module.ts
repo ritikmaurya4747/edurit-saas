@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuditService } from './services/audit.service';
+import { CredentialsService } from './services/credentials.service';
 import { StaffContextService } from './services/staff-context.service';
 
 // Global: every feature module can use @TenantAuth() (JwtAuthGuard needs
@@ -8,7 +9,7 @@ import { StaffContextService } from './services/staff-context.service';
 @Global()
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
-  providers: [AuditService, StaffContextService],
-  exports: [PassportModule, AuditService, StaffContextService],
+  providers: [AuditService, StaffContextService, CredentialsService],
+  exports: [PassportModule, AuditService, StaffContextService, CredentialsService],
 })
 export class CommonModule {}

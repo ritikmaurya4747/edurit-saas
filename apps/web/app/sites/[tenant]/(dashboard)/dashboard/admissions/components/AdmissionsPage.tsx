@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Globe, Plus } from "lucide-react";
 import { Button, ConfirmDialog, EmptyState, Field, PageHeader, QueryState, StatTile, Tabs, Textarea } from "@/components/ui";
 import { api } from "@/lib/api/client";
 import { useApiMutation, useApiQuery } from "@/lib/api/hooks";
@@ -16,6 +16,7 @@ import {
 } from "../types";
 import AdmitModal from "./AdmitModal";
 import EnquiryFormModal from "./EnquiryFormModal";
+import OnlineFormModal from "./OnlineFormModal";
 import { AllEnquiriesTab, EntranceTestsTab, WaitlistTab } from "./EnquiryTables";
 import PipelineBoard from "./PipelineBoard";
 import TestResultModal from "./TestResultModal";
@@ -35,6 +36,7 @@ const AdmissionsPage = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Enquiry | null>(null);
   const [movingId, setMovingId] = useState<string | null>(null);
+  const [onlineFormOpen, setOnlineFormOpen] = useState(false);
 
   const stats = useApiQuery<AdmissionStats>(["admissions", "stats"], "admissions/stats");
   const enquiries = useApiQuery<Enquiry[]>(["admissions", "list"], "admissions");
@@ -90,11 +92,16 @@ const AdmissionsPage = () => {
         title="Admissions"
         description="Track enquiries from first contact to admission"
         actions={
-          canManage && (
-            <Button onClick={() => setFormTarget(null)}>
-              <Plus className="h-4 w-4" /> New Enquiry
+          <>
+            <Button variant="outline" onClick={() => setOnlineFormOpen(true)}>
+              <Globe className="h-4 w-4" /> Online form
             </Button>
-          )
+            {canManage && (
+              <Button onClick={() => setFormTarget(null)}>
+                <Plus className="h-4 w-4" /> New Enquiry
+              </Button>
+            )}
+          </>
         }
       />
 
@@ -148,6 +155,7 @@ const AdmissionsPage = () => {
       )}
 
       <EnquiryFormModal enquiry={formTarget} onClose={() => setFormTarget(undefined)} />
+      <OnlineFormModal open={onlineFormOpen} onClose={() => setOnlineFormOpen(false)} />
       <AdmitModal enquiry={admitTarget} onClose={() => setAdmitTarget(null)} />
       <TestResultModal enquiry={testTarget} onClose={() => setTestTarget(null)} />
 

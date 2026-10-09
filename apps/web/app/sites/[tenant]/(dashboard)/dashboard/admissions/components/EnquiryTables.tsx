@@ -7,7 +7,8 @@ import { Badge, Button, EmptyState, QueryState, SearchInput, Select } from "@/co
 import { useApiQuery, useDebounce } from "@/lib/api/hooks";
 import { useClasses } from "@/lib/api/lookups";
 import { formatDate, formatDateTime } from "@/lib/utils/format";
-import { STAGE_LABEL, STAGE_TONE, sourceLabel, type AdmissionStage, type Enquiry, type EnquiryActions } from "../types";
+import { STAGE_LABEL, STAGE_TONE, type AdmissionStage, type Enquiry, type EnquiryActions } from "../types";
+import SourceLabel from "./SourceLabel";
 
 // ---------- shared columns ----------
 const applicantColumn: ColumnDef<Enquiry> = {
@@ -51,7 +52,7 @@ export const WaitlistTab = ({ enquiries, actions }: { enquiries: Enquiry[]; acti
       applicantColumn,
       classColumn,
       phoneColumn,
-      { id: "source", header: "Source", cell: ({ row }) => sourceLabel(row.original.source) },
+      { id: "source", header: "Source", cell: ({ row }) => <SourceLabel source={row.original.source} /> },
       createdColumn,
       {
         id: "actions",
@@ -180,7 +181,7 @@ export const AllEnquiriesTab = ({ actions, onCreate }: { actions: EnquiryActions
       applicantColumn,
       classColumn,
       phoneColumn,
-      { id: "source", header: "Source", cell: ({ row }) => sourceLabel(row.original.source) },
+      { id: "source", header: "Source", cell: ({ row }) => <SourceLabel source={row.original.source} /> },
       {
         id: "stage",
         header: "Stage",

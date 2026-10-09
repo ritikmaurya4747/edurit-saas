@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class TenantsLoginDto {
-  @ApiProperty({ example: 'admin@school.com' })
-  @IsEmail()
+  // Kept as `email` for backwards compatibility; it accepts any login id.
+  @ApiProperty({
+    example: 'admin@school.com',
+    description: 'Email, registered mobile number (parents/staff) or admission number (students)',
+  })
+  @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   email: string;
 
   @ApiProperty({ example: 'Admin@123' })

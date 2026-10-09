@@ -147,11 +147,11 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit}>
                         <Field
-                            label="Email address"
-                            type="email"
+                            label="Email, mobile or admission no."
+                            type="text"
                             value={email}
                             onChange={setEmail}
-                            placeholder={"mohit@gmil.com"}
+                            placeholder="you@school.com · 98765xxxxx · ADM-2026-0001"
                             disabled={isPending}
                         />
 

@@ -74,7 +74,20 @@ export const SOURCE_OPTIONS = [
   { value: "OTHER", label: "Other" },
 ];
 
-export const sourceLabel = (source: string) => SOURCE_OPTIONS.find((s) => s.value === source)?.label ?? source;
+// Set only by the public /apply form (not offered when creating an enquiry by hand).
+export const ONLINE_FORM_SOURCE = "ONLINE_FORM";
+
+export const sourceLabel = (source: string) =>
+  source === ONLINE_FORM_SOURCE ? "Online form" : (SOURCE_OPTIONS.find((s) => s.value === source)?.label ?? source);
+
+// GET/PUT /admissions/online-form/settings
+export interface OnlineFormSettings {
+  onlineFormEnabled: boolean;
+  formMessage: string;
+  classesOpen: string[];
+  academicYearLabel: string;
+  publicPath: string;
+}
 
 export const GENDER_OPTIONS = [
   { value: "MALE", label: "Male" },

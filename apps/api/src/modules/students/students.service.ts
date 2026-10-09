@@ -861,13 +861,31 @@ export class StudentsService {
   // role in this school, and the Parent profile. Returns Parent.id.
   private async ensureParent(tx: Tx, tenantId: string, guardian: GuardianInputDto, passwordHash: string | null) {
     const phone = guardian.phone?.trim() ?? '';
-    const phoneDigits = phone.replace(/\D/g, '');
+    // Compare mobiles on their last 10 digits so "+91 98765 43210" and
+    // "9876543210" are the same parent (siblings share one parent login).
+    const phoneDigits = phone.replace(/\D/g, '').slice(-10);
+    const givenEmail = guardian.email?.trim().toLowerCase() || '';
+
+    let user = null as Awaited<ReturnType<typeof tx.user.findUnique>>;
+    if (!givenEmail && phoneDigits.length === 10) {
+      const candidates = await tx.user.findMany({
+        where: {
+          deletedAt: null,
+          phone: { endsWith: phoneDigits.slice(-4) },
+          parents: { some: { tenantId, deletedAt: null } },
+        },
+        take: 20,
+      });
+      user = candidates.find((u) => (u.phone ?? '').replace(/\D/g, '').slice(-10) === phoneDigits) ?? null;
+    }
+
     const email =
-      guardian.email?.trim().toLowerCase() ||
+      givenEmail ||
+      user?.email ||
       (phoneDigits ? `parent.${phoneDigits}.${tenantId.replace(/-/g, '').slice(0, 8)}${PLACEHOLDER_EMAIL_DOMAIN}` : '');
     if (!email) throw new BadRequestException('Guardian needs a phone number or an email');
 
-    let user = await tx.user.findUnique({ where: { email } });
+    user ??= await tx.user.findUnique({ where: { email } });
     if (user?.deletedAt) {
       throw new BadRequestException(`The account ${email} has been deactivated. Use a different email for the guardian.`);
     }
