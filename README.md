@@ -1,4 +1,4 @@
-# Examples for our apps:
+# Examples for our apps: 
 # admin app
 pnpm add axios --filter platform
 
