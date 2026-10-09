@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { filterSidebar, isSidebarItemActive } from "@/config/sidebarData";
-import { useCan } from "@/lib/auth/permissions";
+import { useCan, useIsPortalUser } from "@/lib/auth/permissions";
 import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
 import { formatRole, getInitials } from "@/lib/utils/format";
 import { useUser } from "@/providers/user-provider";
 import LogoutIcon from "@repo/ui/icons/LogoutIcon";
-import AlertIcon from "@repo/ui/icons/AlertIcon";
+import NotificationBell from "./NotificationBell";
 
 const MobileSidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const can = useCan();
-  const sections = filterSidebar(can);
+  const portalUser = useIsPortalUser();
+  const sections = filterSidebar(can, portalUser);
   const user = useUser();
 
   // Close the drawer whenever the route changes
@@ -64,15 +65,7 @@ const MobileSidebar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-white/80 active:bg-white/10"
-          >
-            <AlertIcon />
-            {/* Unread indicator dot */}
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#16233F]" />
-          </button>
+          <NotificationBell tone="dark" />
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-[11px] font-semibold text-amber-700">
             {getInitials(user?.name)}
           </div>

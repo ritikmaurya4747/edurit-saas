@@ -45,10 +45,27 @@ export const PERMISSIONS = {
   NOTICE_PUBLISH: "notices:publish",
   OPERATIONS_READ: "operations:read",
   OPERATIONS_MANAGE: "operations:manage",
+  CALENDAR_MANAGE: "calendar:manage",
+  TRANSPORT_READ: "transport:read",
+  TRANSPORT_MANAGE: "transport:manage",
+  LIBRARY_READ: "library:read",
+  LIBRARY_MANAGE: "library:manage",
+  CERTIFICATE_ISSUE: "certificates:issue",
   ROLES_MANAGE: "roles:manage",
   SETTINGS_MANAGE: "settings:manage",
   AUDIT_READ: "audit:read",
 } as const;
+
+const PORTAL_ROLES = ["STUDENT", "PARENT"];
+
+// Students and parents (and nobody with a staff role) use the self-service
+// portal pages under /dashboard/my/* instead of the staff ERP screens.
+export const isPortalUser = (user: { roles: { code: string }[]; isAdmin: boolean } | null) =>
+  !!user && !user.isAdmin && user.roles.length > 0 && user.roles.every((r) => PORTAL_ROLES.includes(r.code));
+
+export function useIsPortalUser() {
+  return isPortalUser(useUser());
+}
 
 // const can = useCan(); can(PERMISSIONS.STUDENT_CREATE) → boolean
 // Several codes = all required. Admins can do everything.

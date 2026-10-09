@@ -78,6 +78,20 @@ export const PERMISSIONS = {
   OPERATIONS_READ: 'operations:read',
   OPERATIONS_MANAGE: 'operations:manage',
 
+  // Academic calendar (reading uses ACADEMIC_READ)
+  CALENDAR_MANAGE: 'calendar:manage',
+
+  // Transport
+  TRANSPORT_READ: 'transport:read',
+  TRANSPORT_MANAGE: 'transport:manage',
+
+  // Library
+  LIBRARY_READ: 'library:read',
+  LIBRARY_MANAGE: 'library:manage',
+
+  // Certificates & ID cards
+  CERTIFICATE_ISSUE: 'certificates:issue',
+
   // Administration
   ROLES_MANAGE: 'roles:manage',
   SETTINGS_MANAGE: 'settings:manage',
@@ -139,6 +153,16 @@ export const PERMISSION_CATALOGUE: PermissionDefinition[] = [
   { code: P.OPERATIONS_READ, module: 'Operations', description: 'View visitors, infirmary, inventory and compliance' },
   { code: P.OPERATIONS_MANAGE, module: 'Operations', description: 'Manage visitors, infirmary, inventory and compliance' },
 
+  { code: P.CALENDAR_MANAGE, module: 'Calendar', description: 'Manage holidays and school events' },
+
+  { code: P.TRANSPORT_READ, module: 'Transport', description: 'View routes, vehicles and student transport' },
+  { code: P.TRANSPORT_MANAGE, module: 'Transport', description: 'Manage routes, vehicles and assign students' },
+
+  { code: P.LIBRARY_READ, module: 'Library', description: 'View library catalogue and issues' },
+  { code: P.LIBRARY_MANAGE, module: 'Library', description: 'Manage books, issue and return' },
+
+  { code: P.CERTIFICATE_ISSUE, module: 'Certificates', description: 'Issue certificates and ID cards' },
+
   { code: P.ROLES_MANAGE, module: 'Administration', description: 'Manage roles, permissions and user access' },
   { code: P.SETTINGS_MANAGE, module: 'Administration', description: 'Manage school settings' },
   { code: P.AUDIT_READ, module: 'Administration', description: 'View audit logs' },
@@ -170,6 +194,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
     P.EXAM_READ,
     P.MARKS_ENTRY,
     P.NOTICE_READ,
+    P.LIBRARY_READ,
   ],
   ACCOUNTANT: [
     P.ACADEMIC_READ,
@@ -182,6 +207,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
     P.PAYMENT_REFUND,
     P.PAYROLL_MANAGE,
     P.NOTICE_READ,
+    P.TRANSPORT_READ,
   ],
   STAFF: [
     P.ACADEMIC_READ,
@@ -191,9 +217,25 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
     P.OPERATIONS_READ,
     P.OPERATIONS_MANAGE,
     P.NOTICE_READ,
+    P.TRANSPORT_READ,
+    P.TRANSPORT_MANAGE,
+    P.LIBRARY_READ,
+    P.LIBRARY_MANAGE,
+    P.CERTIFICATE_ISSUE,
   ],
-  STUDENT: [P.ACADEMIC_READ, P.HOMEWORK_READ, P.EXAM_READ, P.NOTICE_READ],
-  PARENT: [P.ACADEMIC_READ, P.HOMEWORK_READ, P.EXAM_READ, P.NOTICE_READ],
+  // Students and parents use the /portal API, which only returns their own
+  // (or their children's) records. Staff-side read permissions such as
+  // homework:read / exams:read must NOT be granted: those endpoints return
+  // data for every student in the school.
+  STUDENT: [P.ACADEMIC_READ, P.NOTICE_READ],
+  PARENT: [P.ACADEMIC_READ, P.NOTICE_READ],
+};
+
+// Permissions that earlier versions granted by default but must be removed
+// from these system roles on existing schools (applied by the seed script).
+export const REVOKED_ROLE_PERMISSIONS: Record<string, string[]> = {
+  STUDENT: [P.HOMEWORK_READ, P.EXAM_READ],
+  PARENT: [P.HOMEWORK_READ, P.EXAM_READ],
 };
 
 // Node >= 23 require(esm): when an ES module has an export named "module.exports",
@@ -210,5 +252,6 @@ const cjsExports = {
   ADMIN_ROLE_CODE,
   SYSTEM_ROLES,
   DEFAULT_ROLE_PERMISSIONS,
+  REVOKED_ROLE_PERMISSIONS,
 };
 export { cjsExports as 'module.exports' };

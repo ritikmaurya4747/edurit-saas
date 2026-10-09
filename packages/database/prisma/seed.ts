@@ -3,14 +3,21 @@ import * as bcrypt from 'bcrypt';
 import {
   DEFAULT_ROLE_PERMISSIONS,
   PERMISSION_CATALOGUE,
+  REVOKED_ROLE_PERMISSIONS,
   SYSTEM_ROLES,
 } from '../src/index';
 
 const prisma = new PrismaClient();
 
-// Ensures every tenant has all system roles, and grants default permissions
-// to any system role that has none yet (custom edits are never overwritten).
-async function syncTenantSystemRoles() {
+// Ensures every tenant has all system roles and keeps their defaults current
+// without overwriting an admin's custom edits:
+//  - a role with no permissions yet gets its full default set;
+//  - ADMIN always gets every catalogue permission;
+//  - permissions introduced in THIS run (newCodes) are granted to the system
+//    roles whose defaults include them (so new modules show up for teachers,
+//    staff, ...), while permissions an admin removed earlier stay removed;
+//  - REVOKED_ROLE_PERMISSIONS are removed from those system roles.
+async function syncTenantSystemRoles(newCodes: Set<string>) {
   const permissions = await prisma.permission.findMany();
   const permissionIdByCode = new Map(permissions.map((p) => [p.code, p.id]));
   const tenants = await prisma.tenant.findMany({ select: { id: true, slug: true } });
@@ -30,16 +37,22 @@ async function syncTenantSystemRoles() {
       });
 
       const defaults = DEFAULT_ROLE_PERMISSIONS[systemRole.code] ?? [];
-      // ADMIN always receives newly added catalogue permissions.
-      if (role._count.permissions > 0 && systemRole.code !== 'ADMIN') continue;
+      const isFresh = role._count.permissions === 0 || systemRole.code === 'ADMIN';
+      const toGrant = isFresh ? defaults : defaults.filter((code) => newCodes.has(code));
 
-      const data = defaults
+      const data = toGrant
         .map((code) => permissionIdByCode.get(code))
         .filter((id): id is string => Boolean(id))
         .map((permissionId) => ({ roleId: role.id, permissionId }));
-
       if (data.length > 0) {
         await prisma.rolePermission.createMany({ data, skipDuplicates: true });
+      }
+
+      const revokeIds = (REVOKED_ROLE_PERMISSIONS[systemRole.code] ?? [])
+        .map((code) => permissionIdByCode.get(code))
+        .filter((id): id is string => Boolean(id));
+      if (revokeIds.length > 0) {
+        await prisma.rolePermission.deleteMany({ where: { roleId: role.id, permissionId: { in: revokeIds } } });
       }
     }
     console.log(`✅ Synced system roles for tenant '${tenant.slug}'.`);
@@ -49,7 +62,9 @@ async function syncTenantSystemRoles() {
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // 1. Seed Master Permissions
+  // 1. Seed Master Permissions (remember which ones are new in this run)
+  const existingCodes = new Set((await prisma.permission.findMany({ select: { code: true } })).map((p) => p.code));
+  const newCodes = new Set(PERMISSION_CATALOGUE.map((p) => p.code).filter((code) => !existingCodes.has(code)));
   for (const perm of PERMISSION_CATALOGUE) {
     await prisma.permission.upsert({
       where: { code: perm.code },
@@ -104,7 +119,7 @@ async function main() {
   console.log('✅ Super Admin created: superadmin@edurit.com / Admin@123456');
 
   // 4. Backfill system roles + default permissions for existing tenants
-  await syncTenantSystemRoles();
+  await syncTenantSystemRoles(newCodes);
 
   console.log('🌾 Seeding completed successfully.');
 }

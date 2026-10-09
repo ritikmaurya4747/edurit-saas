@@ -1,9 +1,14 @@
-// Demo data for ONE school (tenant): creates one realistic record in every ERP
-// module so each dashboard screen has something to show.
+// Demo setup for one or more schools (tenants), so every ERP screen has data:
+//  1. school settings (address, contact, affiliation…) — only empty fields are filled;
+//  2. one realistic record in every core module (students, fees, exams, HR…);
+//  3. demo records for calendar, transport and library;
+//  4. one login per role (principal, teacher, accountant, front desk, student, parent).
 //
-//   pnpm db:seed:demo <tenant-slug>        e.g. pnpm db:seed:demo tulsi-manas
+//   pnpm db:seed:demo tulsi-manas                 one school
+//   pnpm db:seed:demo tulsi-manas lavkush         several schools
+//   pnpm db:seed:demo --all                       every school
 //
-// Safe to re-run: it stops if the demo student already exists. Everything is
+// Safe to re-run: every step checks what already exists. The core data is
 // written in a single transaction, so a failure leaves no partial data.
 import { PrismaClient, Prisma } from '../generated/client';
 import * as bcrypt from 'bcrypt';
@@ -32,10 +37,7 @@ function nextNumber(existing: (string | null)[], prefix: string, width: number) 
   return `${prefix}${String(max + 1).padStart(width, '0')}`;
 }
 
-async function main() {
-  const slug = (process.argv[2] ?? process.env.DEMO_TENANT_SLUG ?? '').trim().toLowerCase();
-  if (!slug) throw new Error('Usage: pnpm db:seed:demo <tenant-slug>');
-
+async function seedCoreData(slug: string) {
   const tenant = await prisma.tenant.findUnique({ where: { slug }, include: { settings: true } });
   if (!tenant) throw new Error(`School '${slug}' not found`);
   const tenantId = tenant.id;
@@ -49,7 +51,7 @@ async function main() {
     where: { tenantId, admissionNumber: { endsWith: DEMO_ADMISSION_NO_SUFFIX } },
   });
   if (existing) {
-    console.log(`ℹ️  Demo data already exists for '${slug}' (student ${existing.admissionNumber}). Nothing to do.`);
+    console.log(`   core data   : already present (student ${existing.admissionNumber})`);
     return;
   }
 
@@ -364,14 +366,332 @@ async function main() {
     { maxWait: 10_000, timeout: 60_000 },
   );
 
-  console.log(`✅ Demo data created for '${slug}':`);
-  console.log(`   Student  : Aarav Verma (${result.student.admissionNumber}), Class 5 - A, roll 1`);
-  console.log(`   Teacher  : Anjali Sharma (${result.teacher.employeeCode})`);
-  console.log(`   Fees     : ${result.invoiceNumber} ₹30,000 — paid ₹10,000 (${result.receiptNumber})`);
-  console.log('   + timetable, attendance, leave, homework, exam/marks/report card/seat,');
-  console.log('     payroll, staff leave & attendance, appraisal, admission enquiry, notice,');
-  console.log('     visitor, infirmary visit, inventory item, compliance record');
-  console.log(`   Logins   : teacher@${emailDomain} / ${DEMO_PASSWORD}   parent@${emailDomain} / ${DEMO_PASSWORD}`);
+  console.log(`   core data   : created — Aarav Verma (${result.student.admissionNumber}), teacher ${result.teacher.employeeCode},`);
+  console.log(`                 ${result.invoiceNumber} ₹30,000 (paid ₹10,000, ${result.receiptNumber}), exam, homework, HR, front office…`);
+}
+
+// ---------------------------------------------------------------------------
+// 1. School settings — fills only fields that are still empty.
+// ---------------------------------------------------------------------------
+interface SchoolProfileSeed {
+  city: string;
+  state: string;
+  pincode: string;
+  area: string;
+  principal: string;
+  phone: string;
+}
+
+const SCHOOL_PROFILES: Record<string, SchoolProfileSeed> = {
+  'tulsi-manas': { city: 'Varanasi', state: 'Uttar Pradesh', pincode: '221005', area: 'Durgakund Road, Bhelupur', principal: 'Dr. Ramakant Tripathi', phone: '0542-2310045' },
+  lavkush: { city: 'Ayodhya', state: 'Uttar Pradesh', pincode: '224123', area: 'Ram Path, Naya Ghat', principal: 'Mrs. Sunita Mishra', phone: '05278-232211' },
+  'shashtri-vidyalaya': { city: 'Lucknow', state: 'Uttar Pradesh', pincode: '226010', area: 'Sector 12, Gomti Nagar', principal: 'Mr. Alok Shastri', phone: '0522-4012345' },
+};
+const DEFAULT_PROFILE: SchoolProfileSeed = {
+  city: 'Prayagraj',
+  state: 'Uttar Pradesh',
+  pincode: '211001',
+  area: 'Civil Lines',
+  principal: 'Dr. Meena Srivastava',
+  phone: '0532-2400100',
+};
+
+// Deterministic 5-digit number per school (so re-runs produce the same value).
+const stableNumber = (text: string) =>
+  String(Math.abs([...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7)) % 100000).padStart(5, '0');
+
+async function fillSchoolSettings(slug: string) {
+  const tenant = await prisma.tenant.findUniqueOrThrow({ where: { slug }, include: { settings: true } });
+  const p = SCHOOL_PROFILES[slug] ?? DEFAULT_PROFILE;
+  const code = slug.replace(/[^a-z0-9]/g, '').slice(0, 6).toUpperCase();
+
+  const desired: Record<string, string> = {
+    address: p.area,
+    city: p.city,
+    state: p.state,
+    pincode: p.pincode,
+    phone: p.phone,
+    email: `office@${slug}.edu.in`,
+    website: `https://${slug}.edurit.in`,
+    affiliationBoard: 'CBSE',
+    affiliationNumber: `21${stableNumber(slug)}`,
+    principalName: p.principal,
+    establishedYear: '1998',
+  };
+
+  const theme = (tenant.settings?.themeConfig ?? {}) as Record<string, unknown>;
+  const profile: Record<string, string> = { ...((theme.profile as Record<string, string> | undefined) ?? {}) };
+  const filled: string[] = tenant.legalName ? [] : ['legalName'];
+  for (const [key, value] of Object.entries(desired)) {
+    if (!profile[key]) {
+      profile[key] = value;
+      filled.push(key);
+    }
+  }
+
+  await prisma.$transaction([
+    ...(tenant.legalName
+      ? []
+      : [prisma.tenant.update({ where: { id: tenant.id }, data: { legalName: `${tenant.name} Educational Society (Regd. ${code})` } })]),
+    prisma.tenantSettings.upsert({
+      where: { tenantId: tenant.id },
+      update: { themeConfig: { ...theme, profile } as Prisma.InputJsonObject },
+      create: { tenantId: tenant.id, currency: 'INR', timezone: 'Asia/Kolkata', themeConfig: { profile } },
+    }),
+  ]);
+  console.log(`   settings    : ${filled.length ? `filled ${filled.join(', ')}` : 'already complete'}`);
+}
+
+// ---------------------------------------------------------------------------
+// 2. Calendar, transport and library demo records (each checked separately).
+// ---------------------------------------------------------------------------
+async function seedModuleExtras(slug: string) {
+  const tenant = await prisma.tenant.findUniqueOrThrow({ where: { slug }, include: { settings: true } });
+  const tenantId = tenant.id;
+  const today = todayIn(tenant.settings?.timezone ?? 'Asia/Kolkata');
+  const student = await prisma.student.findFirst({
+    where: { tenantId, admissionNumber: { endsWith: DEMO_ADMISSION_NO_SUFFIX }, deletedAt: null },
+  });
+  const done: string[] = [];
+
+  // Calendar
+  if (!(await prisma.calendarEvent.count({ where: { tenantId, deletedAt: null } }))) {
+    const year = today.getUTCFullYear();
+    const thisYearsDate = new Date(Date.UTC(year, 9, 2));
+    const gandhiJayanti = today > thisYearsDate ? new Date(Date.UTC(year + 1, 9, 2)) : thisYearsDate;
+    await prisma.calendarEvent.createMany({
+      data: [
+        {
+          tenantId,
+          title: 'Parent-Teacher Meeting',
+          type: 'PTM',
+          startDate: addDays(today, 5),
+          endDate: addDays(today, 5),
+          targetRole: 'PARENT',
+          description: 'Unit Test 1 results discussion, 10 AM to 1 PM.',
+        },
+        {
+          tenantId,
+          title: 'Annual Sports Day',
+          type: 'EVENT',
+          startDate: addDays(today, 12),
+          endDate: addDays(today, 13),
+          description: 'Track and field events on the main ground.',
+        },
+        { tenantId, title: 'Gandhi Jayanti', type: 'HOLIDAY', isHoliday: true, startDate: gandhiJayanti, endDate: gandhiJayanti },
+        {
+          tenantId,
+          title: 'Science Exhibition',
+          type: 'ACTIVITY',
+          startDate: addDays(today, 20),
+          endDate: addDays(today, 20),
+          description: 'Classes 5 to 10; models to be submitted a day before.',
+        },
+      ],
+    });
+    done.push('calendar');
+  }
+
+  // Transport
+  let route = await prisma.transportRoute.findFirst({ where: { tenantId, deletedAt: null }, include: { stops: true } });
+  if (!route) {
+    const vehicle = await prisma.vehicle.create({
+      data: {
+        tenantId,
+        registrationNumber: 'UP65 AB 1234',
+        model: 'Tata Starbus 40-seater',
+        capacity: 40,
+        driverName: 'Shyam Lal Yadav',
+        driverPhone: '9876500010',
+        driverLicense: 'UP65-2015-0012345',
+        helperName: 'Mohan',
+        helperPhone: '9876500011',
+        insuranceExpiry: addDays(today, 200),
+        fitnessExpiry: addDays(today, 10),
+      },
+    });
+    route = await prisma.transportRoute.create({
+      data: {
+        tenantId,
+        name: 'Route 1 - City Centre',
+        code: 'R1',
+        vehicleId: vehicle.id,
+        monthlyFee: d(1200),
+        stops: {
+          create: [
+            { name: 'Lanka Gate', sequence: 1, pickupTime: '07:05', dropTime: '14:20' },
+            { name: 'Assi Ghat', sequence: 2, pickupTime: '07:15', dropTime: '14:10' },
+            { name: 'School Campus', sequence: 3, pickupTime: '07:35', dropTime: '13:50' },
+          ],
+        },
+      },
+      include: { stops: true },
+    });
+    done.push('transport');
+  }
+  if (student && !(await prisma.studentTransport.count({ where: { tenantId, studentId: student.id, isActive: true } }))) {
+    await prisma.studentTransport.create({
+      data: {
+        tenantId,
+        studentId: student.id,
+        routeId: route.id,
+        stopId: route.stops.find((s) => s.sequence === 1)?.id,
+        startDate: today,
+      },
+    });
+    done.push('transport assignment');
+  }
+
+  // Library
+  if (!(await prisma.libraryBook.count({ where: { tenantId, deletedAt: null } }))) {
+    const [book] = await prisma.$transaction([
+      prisma.libraryBook.create({
+        data: {
+          tenantId,
+          title: 'Wings of Fire',
+          author: 'A. P. J. Abdul Kalam',
+          isbn: '9788173711466',
+          publisher: 'Universities Press',
+          category: 'Biography',
+          shelfLocation: 'B-2',
+          totalCopies: 3,
+          availableCopies: student ? 2 : 3,
+        },
+      }),
+      prisma.libraryBook.create({
+        data: { tenantId, title: 'NCERT Mathematics - Class 5', author: 'NCERT', category: 'Textbook', shelfLocation: 'T-1', totalCopies: 10, availableCopies: 10 },
+      }),
+      prisma.libraryBook.create({
+        data: { tenantId, title: 'Panchatantra Stories', author: 'Vishnu Sharma', category: 'Fiction', shelfLocation: 'F-4', totalCopies: 2, availableCopies: 2 },
+      }),
+    ]);
+    if (student) {
+      await prisma.bookIssue.create({
+        data: { tenantId, bookId: book.id, studentId: student.id, dueDate: addDays(today, 7), remarks: 'Demo issue' },
+      });
+    }
+    done.push('library');
+  }
+
+  console.log(`   new modules : ${done.length ? `created ${done.join(', ')}` : 'already present'}`);
+}
+
+// ---------------------------------------------------------------------------
+// 3. One login per role. Staff-type users also get a Staff profile so they
+//    appear in the HR directory; the student login is linked to the demo student.
+// ---------------------------------------------------------------------------
+interface RoleLogin {
+  key: string;
+  roleCode: string;
+  firstName: string;
+  lastName: string;
+  staff?: { designation: string; department: string; salary: number; teaching: boolean };
+}
+
+const ROLE_LOGINS: RoleLogin[] = [
+  { key: 'principal', roleCode: 'ADMIN', firstName: 'Ramakant', lastName: 'Tripathi', staff: { designation: 'Principal', department: 'Administration', salary: 85000, teaching: false } },
+  { key: 'teacher', roleCode: 'TEACHER', firstName: 'Anjali', lastName: 'Sharma', staff: { designation: 'Class Teacher', department: 'Mathematics', salary: 42000, teaching: true } },
+  { key: 'accountant', roleCode: 'ACCOUNTANT', firstName: 'Kavita', lastName: 'Bhatt', staff: { designation: 'Accountant', department: 'Accounts', salary: 32000, teaching: false } },
+  { key: 'frontdesk', roleCode: 'STAFF', firstName: 'Pooja', lastName: 'Singh', staff: { designation: 'Front Office Executive', department: 'Administration', salary: 22000, teaching: false } },
+  { key: 'student', roleCode: 'STUDENT', firstName: 'Aarav', lastName: 'Verma' },
+  { key: 'parent', roleCode: 'PARENT', firstName: 'Rajesh', lastName: 'Verma' },
+];
+
+async function seedRoleLogins(slug: string) {
+  const tenant = await prisma.tenant.findUniqueOrThrow({ where: { slug } });
+  const tenantId = tenant.id;
+  const domain = `${slug}.demo`;
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const roles = await prisma.role.findMany({ where: { tenantId }, select: { id: true, code: true } });
+  const roleId = (code: string) => {
+    const id = roles.find((r) => r.code === code)?.id;
+    if (!id) throw new Error(`Role ${code} missing for '${slug}' - run pnpm db:seed first`);
+    return id;
+  };
+  const branch = await prisma.branch.findFirst({ where: { tenantId, deletedAt: null }, orderBy: { createdAt: 'asc' } });
+  const student = await prisma.student.findFirst({
+    where: { tenantId, admissionNumber: { endsWith: DEMO_ADMISSION_NO_SUFFIX }, deletedAt: null },
+    include: { guardians: true },
+  });
+
+  const lines: string[] = [];
+  for (const [index, login] of ROLE_LOGINS.entries()) {
+    const email = `${login.key}@${domain}`;
+    // Never overwrite an existing password (it may have been changed since).
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: { email, passwordHash, firstName: login.firstName, lastName: login.lastName, phone: `98765100${String(index).padStart(2, '0')}` },
+    });
+    const membership = await prisma.membership.upsert({
+      where: { tenantId_userId: { tenantId, userId: user.id } },
+      update: {},
+      create: { tenantId, userId: user.id, status: 'ACTIVE' },
+    });
+    await prisma.membershipRole.upsert({
+      where: { membershipId_roleId: { membershipId: membership.id, roleId: roleId(login.roleCode) } },
+      update: {},
+      create: { membershipId: membership.id, roleId: roleId(login.roleCode) },
+    });
+
+    if (login.staff && branch) {
+      const existingStaff = await prisma.staff.findUnique({ where: { tenantId_userId: { tenantId, userId: user.id } } });
+      if (!existingStaff) {
+        const codes = await prisma.staff.findMany({ where: { tenantId }, select: { employeeCode: true } });
+        await prisma.staff.create({
+          data: {
+            tenantId,
+            userId: user.id,
+            branchId: branch.id,
+            employeeCode: nextNumber(codes.map((c) => c.employeeCode), 'EMP-', 4),
+            designation: login.staff.designation,
+            department: login.staff.department,
+            basicSalary: d(login.staff.salary),
+            isTeachingStaff: login.staff.teaching,
+            joiningDate: new Date(Date.UTC(2020, 5, 1)),
+          },
+        });
+      }
+    }
+    if (login.roleCode === 'STUDENT' && student && !student.userId) {
+      await prisma.student.update({ where: { id: student.id }, data: { userId: user.id } });
+    }
+    if (login.roleCode === 'PARENT' && student) {
+      const parent = await prisma.parent.upsert({
+        where: { tenantId_userId: { tenantId, userId: user.id } },
+        update: {},
+        create: { tenantId, userId: user.id, occupation: 'Business' },
+      });
+      if (!student.guardians.some((g) => g.parentId === parent.id)) {
+        await prisma.studentGuardian.create({
+          data: { studentId: student.id, parentId: parent.id, relationship: 'FATHER', isPrimary: student.guardians.length === 0 },
+        });
+      }
+    }
+    lines.push(`${login.roleCode.padEnd(10)} ${email}`);
+  }
+  console.log(`   logins (password ${DEMO_PASSWORD}):`);
+  lines.forEach((l) => console.log(`     ${l}`));
+}
+
+async function main() {
+  const args = process.argv
+    .slice(2)
+    .map((a) => a.trim().toLowerCase())
+    .filter(Boolean);
+  if (!args.length) throw new Error('Usage: pnpm db:seed:demo <tenant-slug> [more-slugs] | --all');
+  const slugs = args.includes('--all')
+    ? (await prisma.tenant.findMany({ where: { deletedAt: null }, select: { slug: true }, orderBy: { createdAt: 'asc' } })).map((t) => t.slug)
+    : args;
+
+  for (const slug of slugs) {
+    console.log(`\n🏫 ${slug}`);
+    await seedCoreData(slug);
+    await fillSchoolSettings(slug);
+    await seedModuleExtras(slug);
+    await seedRoleLogins(slug);
+  }
+  console.log('\n✅ Demo setup complete.');
 }
 
 main()

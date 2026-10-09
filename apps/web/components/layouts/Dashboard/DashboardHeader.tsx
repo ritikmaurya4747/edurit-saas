@@ -6,8 +6,8 @@ import { findSidebarLabel } from "@/config/sidebarData";
 import { formatRole, getInitials } from "@/lib/utils/format";
 import { useUser } from "@/providers/user-provider";
 import { BurgerMenuLeft, BurgerMenuRight } from "@repo/ui/icons";
-import AlertIcon from "@repo/ui/icons/AlertIcon";
 import LogoutIcon from "@repo/ui/icons/LogoutIcon";
+import NotificationBell from "./NotificationBell";
 import SearchIcon from "@repo/ui/icons/SearchIcon";
 
 interface DashboardSidebarProps {
@@ -58,14 +58,7 @@ const DashboardHeader = ({
 
       {/* Right side content */}
       <div className="flex items-center gap-3">
-        {/* Notification */}
-        <button
-          type="button"
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-        >
-          <AlertIcon />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-        </button>
+        <NotificationBell />
 
         <div className="h-8 w-px bg-gray-200" />
 

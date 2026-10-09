@@ -21,6 +21,12 @@ import { OperationsModule } from "./modules/operations/operations.module";
 import { UsersModule } from "./modules/users/users.module";
 import { TenantsModule } from "./modules/tenants/tenants.module";
 import { DashboardModule } from "./modules/dashboard/dashboard.module";
+import { CalendarModule } from "./modules/calendar/calendar.module";
+import { TransportModule } from "./modules/transport/transport.module";
+import { LibraryModule } from "./modules/library/library.module";
+import { CertificatesModule } from "./modules/certificates/certificates.module";
+import { PortalModule } from "./modules/portal/portal.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Module({
   imports: [
@@ -48,6 +54,13 @@ import { DashboardModule } from "./modules/dashboard/dashboard.module";
     UsersModule,
     TenantsModule,
     DashboardModule,
+    CalendarModule,
+    TransportModule,
+    LibraryModule,
+    CertificatesModule,
+    NotificationsModule,
+    // Student & parent self-service (only their own / their children's data)
+    PortalModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

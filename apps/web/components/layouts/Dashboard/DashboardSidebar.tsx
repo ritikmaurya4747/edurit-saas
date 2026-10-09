@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { filterSidebar, isSidebarItemActive } from "@/config/sidebarData";
-import { useCan } from "@/lib/auth/permissions";
+import { useCan, useIsPortalUser } from "@/lib/auth/permissions";
 
 interface DashboardSidebarProps {
   isSidebarOpen: boolean;
@@ -12,7 +12,8 @@ interface DashboardSidebarProps {
 const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
   const pathname = usePathname();
   const can = useCan();
-  const sections = filterSidebar(can);
+  const portalUser = useIsPortalUser();
+  const sections = filterSidebar(can, portalUser);
 
   const fade = `transition-opacity duration-200 ease-in-out ${isSidebarOpen ? "opacity-100 delay-100" : "opacity-0 pointer-events-none"
     }`;

@@ -143,6 +143,13 @@ model Tenant {
   staffAppraisals    StaffAppraisal[]
   admissionEnquiries AdmissionEnquiry[]
   examSeats          ExamSeat[]
+  calendarEvents     CalendarEvent[]
+  vehicles           Vehicle[]
+  transportRoutes    TransportRoute[]
+  studentTransports  StudentTransport[]
+  libraryBooks       LibraryBook[]
+  bookIssues         BookIssue[]
+  certificates       IssuedCertificate[]
 
   @@map("tenants")
 }
@@ -523,6 +530,7 @@ model Staff {
   leaves             StaffLeave[]
   attendances        StaffAttendance[]
   appraisals         StaffAppraisal[]
+  bookIssues         BookIssue[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, employeeCode])
@@ -566,6 +574,9 @@ model Student {
   studentInvoices       StudentInvoice[]
   infirmaryVisits       InfirmaryVisit[]
   examSeats             ExamSeat[]
+  transports            StudentTransport[]
+  bookIssues            BookIssue[]
+  certificates          IssuedCertificate[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, admissionNumber])
@@ -1365,4 +1376,198 @@ model ExamSeat {
   @@unique([examId, roomNumber, seatNumber])
   @@index([tenantId, examId])
   @@map("exam_seats")
+}
+
+// ============================================================================
+// 16. ACADEMIC CALENDAR (HOLIDAYS & EVENTS)
+// ============================================================================
+
+enum CalendarEventType {
+  HOLIDAY
+  EVENT
+  EXAM
+  PTM
+  ACTIVITY
+  OTHER
+}
+
+model CalendarEvent {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String            @map("tenant_id") @db.Uuid
+  title       String            @db.VarChar(255)
+  description String?           @db.Text
+  type        CalendarEventType @default(EVENT)
+  startDate   DateTime          @map("start_date") @db.Date
+  endDate     DateTime          @map("end_date") @db.Date
+  isHoliday   Boolean           @default(false) @map("is_holiday")
+  targetRole  String            @default("ALL") @map("target_role") @db.VarChar(32)
+  createdById String?           @map("created_by_id") @db.Uuid
+  deletedAt   DateTime?         @map("deleted_at") @db.Timestamptz
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, startDate])
+  @@map("calendar_events")
+}
+
+// ============================================================================
+// 17. TRANSPORT
+// ============================================================================
+
+model Vehicle {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String    @map("tenant_id") @db.Uuid
+  registrationNumber String    @map("registration_number") @db.VarChar(32)
+  model              String?   @db.VarChar(128)
+  capacity           Int
+  driverName         String    @map("driver_name") @db.VarChar(128)
+  driverPhone        String    @map("driver_phone") @db.VarChar(32)
+  driverLicense      String?   @map("driver_license") @db.VarChar(64)
+  helperName         String?   @map("helper_name") @db.VarChar(128)
+  helperPhone        String?   @map("helper_phone") @db.VarChar(32)
+  insuranceExpiry    DateTime? @map("insurance_expiry") @db.Date
+  fitnessExpiry      DateTime? @map("fitness_expiry") @db.Date
+  isActive           Boolean   @default(true) @map("is_active")
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  routes TransportRoute[]
+
+  @@unique([tenantId, registrationNumber])
+  @@index([tenantId])
+  @@map("vehicles")
+}
+
+model TransportRoute {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  name       String    @db.VarChar(128)
+  code       String    @db.VarChar(32)
+  vehicleId  String?   @map("vehicle_id") @db.Uuid
+  monthlyFee Decimal   @default(0.00) @map("monthly_fee") @db.Decimal(10, 2)
+  isActive   Boolean   @default(true) @map("is_active")
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  vehicle     Vehicle?           @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  stops       RouteStop[]
+  assignments StudentTransport[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("transport_routes")
+}
+
+model RouteStop {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  routeId    String   @map("route_id") @db.Uuid
+  name       String   @db.VarChar(128)
+  sequence   Int
+  pickupTime String?  @map("pickup_time") @db.VarChar(8)
+  dropTime   String?  @map("drop_time") @db.VarChar(8)
+  fee        Decimal? @db.Decimal(10, 2)
+
+  route       TransportRoute     @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  assignments StudentTransport[]
+
+  @@index([routeId])
+  @@map("route_stops")
+}
+
+model StudentTransport {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  studentId String    @map("student_id") @db.Uuid
+  routeId   String    @map("route_id") @db.Uuid
+  stopId    String?   @map("stop_id") @db.Uuid
+  startDate DateTime  @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant  Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student        @relation(fields: [tenantId, studentId], references: [tenantId, id], onDelete: Cascade)
+  route   TransportRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stop    RouteStop?     @relation(fields: [stopId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, routeId])
+  @@index([tenantId, studentId])
+  @@map("student_transport")
+}
+
+// ============================================================================
+// 18. LIBRARY
+// ============================================================================
+
+model LibraryBook {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String    @map("tenant_id") @db.Uuid
+  isbn            String?   @db.VarChar(32)
+  title           String    @db.VarChar(255)
+  author          String?   @db.VarChar(255)
+  publisher       String?   @db.VarChar(255)
+  category        String?   @db.VarChar(64)
+  shelfLocation   String?   @map("shelf_location") @db.VarChar(32)
+  totalCopies     Int       @default(1) @map("total_copies")
+  availableCopies Int       @default(1) @map("available_copies")
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  issues BookIssue[]
+
+  @@index([tenantId])
+  @@map("library_books")
+}
+
+model BookIssue {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  bookId     String    @map("book_id") @db.Uuid
+  studentId  String?   @map("student_id") @db.Uuid
+  staffId    String?   @map("staff_id") @db.Uuid
+  issuedAt   DateTime  @default(now()) @map("issued_at") @db.Timestamptz
+  dueDate    DateTime  @map("due_date") @db.Date
+  returnedAt DateTime? @map("returned_at") @db.Timestamptz
+  fineAmount Decimal   @default(0.00) @map("fine_amount") @db.Decimal(10, 2)
+  finePaid   Boolean   @default(false) @map("fine_paid")
+  remarks    String?   @db.Text
+  issuedById String?   @map("issued_by_id") @db.Uuid
+
+  tenant  Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  book    LibraryBook @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  student Student?    @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  staff   Staff?      @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, bookId])
+  @@index([tenantId, returnedAt])
+  @@index([studentId])
+  @@map("book_issues")
+}
+
+// ============================================================================
+// 19. CERTIFICATES & ID CARDS (issue register)
+// ============================================================================
+
+model IssuedCertificate {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  studentId    String    @map("student_id") @db.Uuid
+  type         String    @db.VarChar(32)
+  serialNumber String    @map("serial_number") @db.VarChar(64)
+  data         Json      @default("{}") @db.JsonB
+  issuedById   String?   @map("issued_by_id") @db.Uuid
+  issuedAt     DateTime  @default(now()) @map("issued_at") @db.Timestamptz
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [tenantId, studentId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, serialNumber])
+  @@index([tenantId, studentId])
+  @@index([tenantId, type])
+  @@map("issued_certificates")
 }
