@@ -50,9 +50,9 @@ export async function tenantLoginAction(
     // Cookie ka naam alag rakha hai taaki HQ aur Tenant session clash na karein
     cookieStore.set("tenant_access_token", token, {
       httpOnly: true,
-      secure: process.env.API_BASE_URL === "production",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/",
+      path: "/", 
       maxAge: 60 * 60 * 24 * 7,
     });
 
@@ -65,7 +65,7 @@ export async function tenantLoginAction(
   }
   
   // 5. Redirect to the tenant's root dashboard
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function tenantLogoutAction() {
