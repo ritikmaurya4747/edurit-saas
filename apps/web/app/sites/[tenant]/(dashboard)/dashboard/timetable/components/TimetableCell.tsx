@@ -1,29 +1,53 @@
-import React from 'react';
+"use client";
+
+import { Plus } from "lucide-react";
+import { subjectColor, type TimetableEntry } from "../types";
+
 interface TimetableCellProps {
-    subject: string;
-    teacher: string;
-    color: string;
-    isConflict?: boolean; 
+  entry?: TimetableEntry;
+  // Teacher view shows the section instead of the teacher.
+  mode: "section" | "teacher";
+  onClick?: () => void;
 }
-const TimetableCell = ({ subject, teacher, color, isConflict }: TimetableCellProps) => {
-    return (
-        <div className={`p-2.5 flex flex-col justify-center ${isConflict ? 'bg-red-50' : 'bg-white'}`}>
-            <div className="flex items-center gap-2 mb-1">
-                <span className={`w-2 h-2 rounded-full ${color}`}></span>
-                <span className="font-bold text-sm text-gray-800 flex items-center gap-1.5">
-                    {subject}
-                    {isConflict && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
-                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                            <path d="M12 9v4" />
-                            <path d="M12 17h.01" />
-                        </svg>
-                    )}
-                </span>
-            </div>
-            <span className="text-[11px] font-medium text-gray-400 ml-4 uppercase tracking-wide">{teacher}</span>
-        </div>
+
+const TimetableCell = ({ entry, mode, onClick }: TimetableCellProps) => {
+  if (!entry) {
+    return onClick ? (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label="Add period"
+        className="flex h-full min-h-16 w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-200 text-gray-300 transition-colors hover:border-gray-400 hover:bg-gray-50 hover:text-gray-500"
+      >
+        <Plus className="h-4 w-4" />
+      </button>
+    ) : (
+      <div className="flex h-full min-h-16 items-center justify-center text-xs text-gray-300">—</div>
     );
+  }
+
+  const color = subjectColor(entry.subject.id);
+  const content = (
+    <>
+      <div className="mb-0.5 flex items-center gap-1.5">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${color.dot}`} />
+        <span className={`truncate text-sm font-bold ${color.text}`}>{entry.subject.name}</span>
+      </div>
+      <span className="block truncate pl-3.5 text-[11px] font-medium uppercase tracking-wide text-gray-500">
+        {mode === "teacher" ? entry.section.label : entry.staff.name}
+      </span>
+      {entry.roomNumber && <span className="block pl-3.5 text-[10px] text-gray-400">Room {entry.roomNumber}</span>}
+    </>
+  );
+
+  const base = `flex h-full min-h-16 w-full flex-col justify-center rounded-lg border px-2.5 py-2 text-left ${color.cell}`;
+  return onClick ? (
+    <button type="button" onClick={onClick} className={`${base} cursor-pointer transition-shadow hover:shadow-md`}>
+      {content}
+    </button>
+  ) : (
+    <div className={base}>{content}</div>
+  );
 };
 
 export default TimetableCell;

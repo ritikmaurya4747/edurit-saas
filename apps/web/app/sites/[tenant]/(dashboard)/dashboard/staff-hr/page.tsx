@@ -1,10 +1,8 @@
-import React from 'react'
-import StaffHrPage from './components/StaffHrPage'
+import type { Metadata } from "next";
+import StaffHrPage from "./components/StaffHrPage";
 
-const page = () => {
-    return (
-        <StaffHrPage />
-    )
-}
+export const metadata: Metadata = { title: "Staff & HR" };
 
-export default page
+const page = () => <StaffHrPage />;
+
+export default page;

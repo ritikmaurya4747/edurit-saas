@@ -1,21 +1,8 @@
-import DashboardHeader from "./components/DashboardHeader";
-import DashboardStats from "./components/DashboardStats";
-import AttendanceTrend from "./components/AttendanceTrend";
-import NoticesAttention from "./components/NoticesAttention";
+import type { Metadata } from "next";
+import DashboardHome from "./components/DashboardHome";
 
-const page = () => {
-  return (
-      <div >
-        <DashboardHeader />
+export const metadata: Metadata = { title: "Dashboard" };
 
-        <DashboardStats />
-
-        <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-[1.65fr_0.95fr]">
-          <AttendanceTrend />
-          <NoticesAttention />
-        </section>
-     </div>
-  );
-};
+const page = () => <DashboardHome />;
 
 export default page;

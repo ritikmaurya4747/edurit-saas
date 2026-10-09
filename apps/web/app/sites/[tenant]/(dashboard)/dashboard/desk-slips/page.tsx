@@ -1,10 +1,8 @@
-import React from 'react'
-import DeskSlipsPage from './DeskSlipsPage'
+import type { Metadata } from "next";
+import DeskSlipsPage from "./components/DeskSlipsPage";
 
-const page = () => {
-  return (
-    <DeskSlipsPage />
-  )
-}
+export const metadata: Metadata = { title: "Desk Slips" };
 
-export default page
+const page = () => <DeskSlipsPage />;
+
+export default page;

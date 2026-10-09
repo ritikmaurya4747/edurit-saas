@@ -7,7 +7,12 @@ import { PrismaService } from "../../../core/database/prisma.service";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { PaginationQueryDto } from "../../../common/dto/pagination-query.dto";
 import * as bcrypt from "bcrypt";
-import { SubscriptionStatus } from "@edurit/database";
+import {
+  ADMIN_ROLE_CODE,
+  DEFAULT_ROLE_PERMISSIONS,
+  SYSTEM_ROLES,
+  SubscriptionStatus,
+} from "@edurit/database";
 
 @Injectable()
 export class PlatformTenantsService {
@@ -90,33 +95,40 @@ export class PlatformTenantsService {
           },
         });
 
-        const adminRole = await tx.role.create({
+        // System roles with their default permission sets (see @edurit/database rbac)
+        const permissionIdByCode = new Map(masterPermissions.map((p) => [p.code, p.id]));
+        let adminRoleId = "";
+        for (const systemRole of SYSTEM_ROLES) {
+          const role = await tx.role.create({
+            data: {
+              tenantId: tenant.id,
+              name: systemRole.name,
+              code: systemRole.code,
+              isSystem: true,
+            },
+          });
+          if (systemRole.code === ADMIN_ROLE_CODE) adminRoleId = role.id;
+
+          const data = (DEFAULT_ROLE_PERMISSIONS[systemRole.code] ?? [])
+            .map((code) => permissionIdByCode.get(code))
+            .filter((id): id is string => Boolean(id))
+            .map((permissionId) => ({ roleId: role.id, permissionId }));
+          if (data.length > 0) {
+            await tx.rolePermission.createMany({ data });
+          }
+        }
+
+        // Current academic session (Indian schools: April → March)
+        const sessionStartYear = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+        await tx.academicYear.create({
           data: {
             tenantId: tenant.id,
-            name: "School Administrator",
-            code: "ADMIN",
-            isSystem: true,
+            name: `${sessionStartYear}-${String(sessionStartYear + 1).slice(-2)}`,
+            startDate: new Date(Date.UTC(sessionStartYear, 3, 1)),
+            endDate: new Date(Date.UTC(sessionStartYear + 1, 2, 31)),
+            isCurrent: true,
           },
         });
-
-        await tx.role.createMany({
-          data: [
-            { tenantId: tenant.id, name: "Teacher", code: "TEACHER", isSystem: true },
-            { tenantId: tenant.id, name: "Accountant", code: "ACCOUNTANT", isSystem: true },
-            { tenantId: tenant.id, name: "Staff", code: "STAFF", isSystem: true },
-            { tenantId: tenant.id, name: "Student", code: "STUDENT", isSystem: true },
-            { tenantId: tenant.id, name: "Parent", code: "PARENT", isSystem: true },
-          ],
-        });
-
-        if (masterPermissions.length > 0) {
-          await tx.rolePermission.createMany({
-            data: masterPermissions.map((perm) => ({
-              roleId: adminRole.id,
-              permissionId: perm.id,
-            })),
-          });
-        }
 
         const adminUser = await tx.user.upsert({
           where: { email: dto.adminEmail.toLowerCase().trim() },
@@ -139,7 +151,7 @@ export class PlatformTenantsService {
         await tx.membershipRole.create({
           data: {
             membershipId: membership.id,
-            roleId: adminRole.id,
+            roleId: adminRoleId,
           },
         });
 

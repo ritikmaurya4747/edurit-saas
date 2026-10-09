@@ -1,6 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
+import { findSidebarLabel } from "@/config/sidebarData";
 import { formatRole, getInitials } from "@/lib/utils/format";
 import { useUser } from "@/providers/user-provider";
 import { BurgerMenuLeft, BurgerMenuRight } from "@repo/ui/icons";
@@ -18,6 +20,7 @@ const DashboardHeader = ({
   setIsSidebarOpen,
 }: DashboardSidebarProps) => {
   const user = useUser();
+  const pathname = usePathname();
 
   return (
     <div className="hidden md:flex items-center justify-between px-5 py-2.5 mt-15 lg:mt-0">
@@ -34,7 +37,7 @@ const DashboardHeader = ({
       <div className="text-primary flex gap-2 text-sm font-semibold leading-5">
         <h2 className="text-sm">{user?.tenantName}</h2>
         {" / "}
-        <h2 className="text-sm">Dashboard</h2>
+        <h2 className="text-sm">{findSidebarLabel(pathname)}</h2>
       </div>
       </div>
 

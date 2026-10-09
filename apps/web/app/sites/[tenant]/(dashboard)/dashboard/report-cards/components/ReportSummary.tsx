@@ -1,44 +1,68 @@
-import React from 'react';
-import { SubjectGrade } from '../data/reportCardData';
+import type { ReactNode } from "react";
+import { fmtMarks, type ReportCardDetail } from "../../exams/api";
 
-const ReportSummary = ({ subjects }: { subjects: SubjectGrade[] }) => {
-  const totalMaxMarks = subjects.reduce((sum, sub) => sum + sub.totalMarks, 0);
-  const totalObtained = subjects.reduce((sum, sub) => sum + sub.obtainedMarks, 0);
-  const percentage = ((totalObtained / totalMaxMarks) * 100).toFixed(1);
+const Divider = () => <div className="h-px w-full bg-gray-300 md:h-12 md:w-px print:h-12 print:w-px" />;
 
+const Stat = ({ label, children, align = "center" }: { label: string; children: ReactNode; align?: "left" | "center" | "right" }) => (
+  <div className={align === "left" ? "text-center md:text-left" : align === "right" ? "text-center md:text-right" : "text-center"}>
+    <span className="mb-1 block text-sm font-bold uppercase tracking-wider text-gray-500">{label}</span>
+    {children}
+  </div>
+);
+
+const ReportSummary = ({ data, remarks }: { data: ReportCardDetail; remarks?: ReactNode }) => {
+  const { totals } = data;
   return (
     <div>
-      <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 mb-12">
-        <div className="text-center md:text-left">
-          <span className="block text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Overall Performance</span>
-          <span className="text-xl md:text-2xl font-bold text-gray-900">
-            {totalObtained} <span className="text-gray-500 text-lg font-medium">/ {totalMaxMarks}</span>
+      <div className="mb-8 flex flex-col items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 md:flex-row md:p-6 print:flex-row print-avoid-break">
+        <Stat label="Overall" align="left">
+          <span className="text-xl font-bold text-gray-900 md:text-2xl">
+            {fmtMarks(totals.obtained)} <span className="text-lg font-medium text-gray-500">/ {fmtMarks(totals.max)}</span>
           </span>
-        </div>
-        <div className="h-px md:h-12 w-full md:w-px bg-gray-300"></div>
-        <div className="text-center">
-          <span className="block text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Percentage</span>
-          <span className="text-xl md:text-2xl font-bold text-gray-900">{percentage}%</span>
-        </div>
-        <div className="h-px md:h-12 w-full md:w-px bg-gray-300"></div>
-        <div className="text-center md:text-right">
-          <span className="block text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Result Status</span>
-          <span className="text-xl md:text-2xl font-bold text-green-600">PASS</span>
-        </div>
+        </Stat>
+        <Divider />
+        <Stat label="Percentage">
+          <span className="text-xl font-bold text-gray-900 md:text-2xl">
+            {totals.percent === null ? "—" : `${totals.percent.toFixed(1)}%`}
+          </span>
+        </Stat>
+        <Divider />
+        <Stat label="Grade">
+          <span className="text-xl font-bold text-indigo-700 md:text-2xl">{totals.grade ?? "—"}</span>
+        </Stat>
+        <Divider />
+        <Stat label="Rank">
+          <span className="text-xl font-bold text-gray-900 md:text-2xl">
+            {totals.rank ?? "—"}
+            {totals.rank !== null && <span className="text-lg font-medium text-gray-500"> / {totals.classSize}</span>}
+          </span>
+        </Stat>
+        <Divider />
+        <Stat label="Result" align="right">
+          <span
+            className={`text-xl font-bold md:text-2xl ${
+              totals.result === "PASS" ? "text-green-600" : totals.result === "FAIL" ? "text-red-600" : "text-gray-400"
+            }`}
+          >
+            {totals.result ?? "—"}
+          </span>
+        </Stat>
+      </div>
+
+      <div className="mb-4 rounded-lg border border-gray-200 p-4 print-avoid-break">
+        <span className="mb-2 block text-sm font-bold uppercase tracking-wider text-gray-500">Class Teacher&apos;s Remarks</span>
+        {remarks ?? <p className="min-h-12 text-sm text-gray-800">{data.remarks || "—"}</p>}
       </div>
 
       {/* Signature Section */}
-      <div className="flex justify-between items-end mt-16 px-4 md:px-12">
-        <div className="text-center">
-          <div className="border-t border-gray-800 w-32 md:w-48 pt-2">
-            <p className="text-sm font-bold text-gray-800">Class Teacher</p>
+      <div className="mt-16 flex items-end justify-between px-4 md:px-12 print-avoid-break">
+        {["Class Teacher", "Parent / Guardian", "Principal"].map((label) => (
+          <div key={label} className="text-center">
+            <div className="w-24 border-t border-gray-800 pt-2 sm:w-36 md:w-44">
+              <p className="text-sm font-bold text-gray-800">{label}</p>
+            </div>
           </div>
-        </div>
-        <div className="text-center">
-          <div className="border-t border-gray-800 w-32 md:w-48 pt-2">
-            <p className="text-sm font-bold text-gray-800">Principal</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

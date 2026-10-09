@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/layouts/Dashboard/DashboardLayout";
 import { UserProvider } from "@/providers/user-provider";
+import { QueryProvider } from "@/providers/query-provider";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,10 +22,13 @@ export default async function TenantDashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await getCurrentUser();
+  if (!user) redirect("/api/auth/session-expired");
 
   return (
-    <UserProvider user={user}>
-      <DashboardLayout>{children}</DashboardLayout>
-    </UserProvider>
+    <QueryProvider>
+      <UserProvider user={user}>
+        <DashboardLayout>{children}</DashboardLayout>
+      </UserProvider>
+    </QueryProvider>
   );
 }

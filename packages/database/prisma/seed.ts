@@ -1,58 +1,63 @@
-import { PrismaClient, PlatformRole } from '@prisma/client';
+import { PrismaClient, PlatformRole } from '../generated/client';
 import * as bcrypt from 'bcrypt';
+import {
+  DEFAULT_ROLE_PERMISSIONS,
+  PERMISSION_CATALOGUE,
+  SYSTEM_ROLES,
+} from '../src/index';
 
 const prisma = new PrismaClient();
 
-const MASTER_PERMISSIONS = [
-  // Academic & Branch
-  { code: 'branch:create', module: 'Branch', description: 'Create branch' },
-  { code: 'branch:read', module: 'Branch', description: 'View branches' },
-  { code: 'branch:update', module: 'Branch', description: 'Update branch' },
-  { code: 'branch:delete', module: 'Branch', description: 'Delete branch' },
-  { code: 'class:manage', module: 'Academic', description: 'Manage classes and sections' },
-  { code: 'subject:manage', module: 'Academic', description: 'Manage subjects' },
+// Ensures every tenant has all system roles, and grants default permissions
+// to any system role that has none yet (custom edits are never overwritten).
+async function syncTenantSystemRoles() {
+  const permissions = await prisma.permission.findMany();
+  const permissionIdByCode = new Map(permissions.map((p) => [p.code, p.id]));
+  const tenants = await prisma.tenant.findMany({ select: { id: true, slug: true } });
 
-  // Students
-  { code: 'students:create', module: 'Students', description: 'Admit new student' },
-  { code: 'students:read', module: 'Students', description: 'View student profiles' },
-  { code: 'students:update', module: 'Students', description: 'Update student record' },
-  { code: 'students:delete', module: 'Students', description: 'Archive/Delete student' },
+  for (const tenant of tenants) {
+    for (const systemRole of SYSTEM_ROLES) {
+      const role = await prisma.role.upsert({
+        where: { tenantId_code: { tenantId: tenant.id, code: systemRole.code } },
+        update: {},
+        create: {
+          tenantId: tenant.id,
+          code: systemRole.code,
+          name: systemRole.name,
+          isSystem: true,
+        },
+        include: { _count: { select: { permissions: true } } },
+      });
 
-  // Staff
-  { code: 'staff:create', module: 'Staff', description: 'Add new employee/teacher' },
-  { code: 'staff:read', module: 'Staff', description: 'View staff directory' },
-  { code: 'staff:update', module: 'Staff', description: 'Update staff record' },
-  { code: 'staff:delete', module: 'Staff', description: 'Archive/Delete staff' },
+      const defaults = DEFAULT_ROLE_PERMISSIONS[systemRole.code] ?? [];
+      // ADMIN always receives newly added catalogue permissions.
+      if (role._count.permissions > 0 && systemRole.code !== 'ADMIN') continue;
 
-  // Attendance
-  { code: 'attendance:mark', module: 'Attendance', description: 'Take class attendance' },
-  { code: 'attendance:read', module: 'Attendance', description: 'View attendance analytics' },
-  { code: 'attendance:approve_leave', module: 'Attendance', description: 'Approve student leaves' },
+      const data = defaults
+        .map((code) => permissionIdByCode.get(code))
+        .filter((id): id is string => Boolean(id))
+        .map((permissionId) => ({ roleId: role.id, permissionId }));
 
-  // Fees & Invoicing
-  { code: 'fees:structure_manage', module: 'Billing', description: 'Configure fee components' },
-  { code: 'invoices:create', module: 'Billing', description: 'Issue student invoices' },
-  { code: 'invoices:read', module: 'Billing', description: 'View fee ledger and invoices' },
-  { code: 'payments:collect', module: 'Billing', description: 'Collect and record fee payments' },
-
-  // Examinations
-  { code: 'exams:create', module: 'Examination', description: 'Create exams' },
-  { code: 'marks:entry', module: 'Examination', description: 'Enter subject marks' },
-  { code: 'report_cards:generate', module: 'Examination', description: 'Generate and publish report cards' },
-];
+      if (data.length > 0) {
+        await prisma.rolePermission.createMany({ data, skipDuplicates: true });
+      }
+    }
+    console.log(`✅ Synced system roles for tenant '${tenant.slug}'.`);
+  }
+}
 
 async function main() {
   console.log('🌱 Starting database seed...');
 
   // 1. Seed Master Permissions
-  for (const perm of MASTER_PERMISSIONS) {
+  for (const perm of PERMISSION_CATALOGUE) {
     await prisma.permission.upsert({
       where: { code: perm.code },
-      update: {},
+      update: { module: perm.module, description: perm.description },
       create: perm,
     });
   }
-  console.log(`✅ Seeded ${MASTER_PERMISSIONS.length} master permissions.`);
+  console.log(`✅ Seeded ${PERMISSION_CATALOGUE.length} master permissions.`);
 
   // 2. Seed Default Subscription Plans
   await prisma.subscriptionPlan.upsert({
@@ -63,7 +68,7 @@ async function main() {
       name: '14-Day Free Trial',
       maxStudents: 50,
       maxStaff: 10,
-      pricePerYear: 0.00,
+      pricePerYear: 0.0,
       featuresJson: { lms: true, billing: true, exams: true },
     },
   });
@@ -76,7 +81,7 @@ async function main() {
       name: 'Pro Standard School',
       maxStudents: 1000,
       maxStaff: 100,
-      pricePerYear: 49999.00,
+      pricePerYear: 49999.0,
       featuresJson: { lms: true, billing: true, exams: true, customDomain: true },
     },
   });
@@ -84,7 +89,7 @@ async function main() {
 
   // 3. Seed Platform SuperAdmin
   const passwordHash = await bcrypt.hash('Admin@123456', 12);
-  
+
   await prisma.platformUser.upsert({
     where: { email: 'superadmin@edurit.com' },
     update: {},
@@ -93,10 +98,13 @@ async function main() {
       passwordHash,
       firstName: 'Super',
       lastName: 'Admin',
-      role: PlatformRole.SUPER_ADMIN, 
+      role: PlatformRole.SUPER_ADMIN,
     },
   });
   console.log('✅ Super Admin created: superadmin@edurit.com / Admin@123456');
+
+  // 4. Backfill system roles + default permissions for existing tenants
+  await syncTenantSystemRoles();
 
   console.log('🌾 Seeding completed successfully.');
 }

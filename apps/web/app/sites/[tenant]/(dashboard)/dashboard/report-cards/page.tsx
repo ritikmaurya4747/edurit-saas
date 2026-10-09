@@ -1,10 +1,8 @@
-import React from 'react'
-import ReportCardLayout from './components/ReportCardLayout'
+import type { Metadata } from "next";
+import ReportCardsPage from "./components/ReportCardsPage";
 
-const page = () => {
-  return (
-    <ReportCardLayout/>
-  )
-}
+export const metadata: Metadata = { title: "Report Cards" };
 
-export default page
+const page = () => <ReportCardsPage />;
+
+export default page;

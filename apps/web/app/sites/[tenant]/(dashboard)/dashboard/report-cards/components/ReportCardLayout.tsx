@@ -1,41 +1,38 @@
-import React from 'react';
-import StudentInfo from './StudentInfo';
-import GradesTable from './GradesTable';
-import ReportSummary from './ReportSummary';
-import { reportData } from '../data/reportCardData';
+import type { ReactNode } from "react";
+import { formatDate } from "@/lib/utils/format";
+import type { ReportCardDetail } from "../../exams/api";
+import GradesTable from "./GradesTable";
+import ReportSummary from "./ReportSummary";
+import StudentInfo from "./StudentInfo";
 
-const ReportCardLayout = () => {
-  return (
-    <div className="min-h-screen font-sans flex flex-col items-center">
-      
-      {/* Top Action Bar */}
-      <div className="w-full flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Student Result</h1>
-        <button className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" x2="12" y1="15" y2="3"/>
-          </svg>
-          Download PDF
-        </button>
-      </div>
-
-      {/* Actual Report Card Paper */}
-      <div className="w-full max-w-[900px] bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-12">
-        {/* School Header Mock */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-serif font-black text-gray-900 tracking-tight">VIRTUAL ACADEMY</h1>
-          <p className="text-gray-500 text-sm mt-1">Excellence in Education Since 1995</p>
-        </div>
-
-        <StudentInfo data={reportData} />
-        <GradesTable subjects={reportData.subjects} />
-        <ReportSummary subjects={reportData.subjects} />
-      </div>
-
+// The printable report card "paper". `remarks` replaces the read-only remarks
+// block (used for the inline editor on screen).
+const ReportCardLayout = ({ data, remarks, className }: { data: ReportCardDetail; remarks?: ReactNode; className?: string }) => (
+  <div
+    className={`w-full max-w-225 rounded-xl border border-gray-200 bg-white p-6 shadow-lg md:p-12 print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none ${className ?? ""}`}
+  >
+    <div className="mb-8 text-center">
+      {data.school.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={data.school.logoUrl} alt="" className="mx-auto mb-3 h-16 w-16 object-contain" />
+      )}
+      <h1 className="font-serif text-3xl font-black uppercase tracking-tight text-gray-900 md:text-4xl">{data.school.name}</h1>
+      <p className="mt-1 text-sm text-gray-500">Progress Report</p>
     </div>
-  );
-};
+
+    <StudentInfo data={data} />
+    {data.subjects.length ? (
+      <GradesTable subjects={data.subjects} />
+    ) : (
+      <p className="mb-8 text-center text-sm text-gray-500">No subjects are scheduled for this exam.</p>
+    )}
+    <ReportSummary data={data} remarks={remarks} />
+
+    <p className="mt-8 text-center text-[11px] text-gray-400">
+      {data.generatedAt ? `Generated on ${formatDate(data.generatedAt)}` : "Provisional — computed from current marks"} · Grades: A1 ≥ 91, A2 ≥
+      81, B1 ≥ 71, B2 ≥ 61, C1 ≥ 51, C2 ≥ 41, D ≥ 33, E &lt; 33
+    </p>
+  </div>
+);
 
 export default ReportCardLayout;

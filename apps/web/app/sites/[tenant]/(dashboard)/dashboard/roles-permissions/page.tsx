@@ -1,10 +1,8 @@
-import React from 'react'
-import RolesPermissionsPage from './components/RolesPermissionsPage'
+import type { Metadata } from "next";
+import RolesPermissionsPage from "./components/RolesPermissionsPage";
 
-const page = () => {
-  return (
-    <RolesPermissionsPage />
-  )
-}
+export const metadata: Metadata = { title: "Roles & Permissions" };
 
-export default page
+const page = () => <RolesPermissionsPage />;
+
+export default page;

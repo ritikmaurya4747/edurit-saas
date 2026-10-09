@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sidebarData } from "../../../config/sidebarData";
+import { filterSidebar, isSidebarItemActive } from "@/config/sidebarData";
+import { useCan } from "@/lib/auth/permissions";
 import { tenantLogoutAction } from "@/app/sites/[tenant]/login/actions/tenant-auth";
 import { formatRole, getInitials } from "@/lib/utils/format";
 import { useUser } from "@/providers/user-provider";
@@ -13,6 +14,8 @@ import AlertIcon from "@repo/ui/icons/AlertIcon";
 const MobileSidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const can = useCan();
+  const sections = filterSidebar(can);
   const user = useUser();
 
   // Close the drawer whenever the route changes
@@ -33,14 +36,7 @@ const MobileSidebar = () => {
     };
   }, [isMenuOpen]);
 
-  // "/dashboard" must match exactly, otherwise it would stay active on every sub-route.
-  // Other items also match nested routes via startsWith.
-  const isItemActive = (url?: string) => {
-    if (!url) return false;
-    return url === "/dashboard"
-      ? pathname === url
-      : pathname === url || pathname.startsWith(`${url}/`);
-  };
+  const isItemActive = (url: string) => isSidebarItemActive(pathname, url);
 
   return (
     <div className="lg:hidden">
@@ -128,7 +124,7 @@ const MobileSidebar = () => {
 
         {/* Navigation sections */}
         <nav className="flex-1 overflow-y-auto px-2 py-4">
-          {sidebarData.map((section, sectionIndex) => (
+          {sections.map((section, sectionIndex) => (
             <div key={section.section} className={sectionIndex === 0 ? "" : "mt-5"}>
               <p className="mb-2 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                 {section.section}

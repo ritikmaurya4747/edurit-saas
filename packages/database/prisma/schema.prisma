@@ -1,10 +1,10 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
   output   = "../generated/client"
 }
 
@@ -20,21 +20,21 @@ enum PlatformRole {
 }
 
 model PlatformUser {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email           String       @unique @db.VarChar(255)
-  passwordHash    String       @map("password_hash") @db.VarChar(255)
-  firstName       String       @map("first_name") @db.VarChar(128)
-  lastName        String       @map("last_name") @db.VarChar(128)
-  role            PlatformRole @default(SUPER_ADMIN)
-  permissionsJson Json         @default("[]") @map("permissions_json") @db.JsonB
-  isActive        Boolean      @default(true) @map("is_active")
-  lastLoginAt     DateTime?    @map("last_login_at") @db.Timestamptz
-  failedLoginAttempts Int       @default(0)
-  lockedUntil     DateTime?
-  refreshTokenHash String?  @map("refresh_token_hash") @db.VarChar(255)
-  deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  id                  String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email               String       @unique @db.VarChar(255)
+  passwordHash        String       @map("password_hash") @db.VarChar(255)
+  firstName           String       @map("first_name") @db.VarChar(128)
+  lastName            String       @map("last_name") @db.VarChar(128)
+  role                PlatformRole @default(SUPER_ADMIN)
+  permissionsJson     Json         @default("[]") @map("permissions_json") @db.JsonB
+  isActive            Boolean      @default(true) @map("is_active")
+  lastLoginAt         DateTime?    @map("last_login_at") @db.Timestamptz
+  failedLoginAttempts Int          @default(0)
+  lockedUntil         DateTime?
+  refreshTokenHash    String?      @map("refresh_token_hash") @db.VarChar(255)
+  deletedAt           DateTime?    @map("deleted_at") @db.Timestamptz
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz
 
   platformAuditLogs PlatformAuditLog[]
 
@@ -138,6 +138,11 @@ model Tenant {
   auditLogs          TenantAuditLog[]
   studentEnrollments StudentEnrollment[]
   files              File[]
+  staffLeaves        StaffLeave[]
+  staffAttendances   StaffAttendance[]
+  staffAppraisals    StaffAppraisal[]
+  admissionEnquiries AdmissionEnquiry[]
+  examSeats          ExamSeat[]
 
   @@map("tenants")
 }
@@ -217,15 +222,15 @@ model User {
   deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
-  memberships              Membership[]
-  staffProfiles            Staff[]
-  students                 Student[]
-  parents                  Parent[]
-  auditLogs                TenantAuditLog[]
-  uploadedFiles            File[]
-  sessions                 UserSession[]
-  passwordResetTokens      PasswordResetToken[]
-  emailVerificationTokens  EmailVerificationToken[]
+  memberships             Membership[]
+  staffProfiles           Staff[]
+  students                Student[]
+  parents                 Parent[]
+  auditLogs               TenantAuditLog[]
+  uploadedFiles           File[]
+  sessions                UserSession[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([phone])
   @@map("users")
@@ -478,15 +483,35 @@ model Timetable {
 // 4. PEOPLE: STAFF, STUDENTS, PARENTS & PROFILES
 // ============================================================================
 
+enum StudentStatus {
+  ACTIVE
+  ALUMNI
+  TRANSFERRED
+  DROPPED
+}
+
+enum StaffStatus {
+  ACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+
 model Staff {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId        String    @map("tenant_id") @db.Uuid
-  userId          String    @map("user_id") @db.Uuid
-  branchId        String    @map("branch_id") @db.Uuid
-  employeeCode    String    @map("employee_code") @db.VarChar(64)
-  isTeachingStaff Boolean   @default(true) @map("is_teaching_staff")
-  specialization  String?   @db.VarChar(128)
-  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String      @map("tenant_id") @db.Uuid
+  userId          String      @map("user_id") @db.Uuid
+  branchId        String      @map("branch_id") @db.Uuid
+  employeeCode    String      @map("employee_code") @db.VarChar(64)
+  isTeachingStaff Boolean     @default(true) @map("is_teaching_staff")
+  specialization  String?     @db.VarChar(128)
+  designation     String?     @db.VarChar(128)
+  department      String?     @db.VarChar(128)
+  joiningDate     DateTime?   @map("joining_date") @db.Date
+  basicSalary     Decimal     @default(0.00) @map("basic_salary") @db.Decimal(12, 2)
+  status          StaffStatus @default(ACTIVE)
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamptz
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
 
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -495,6 +520,9 @@ model Staff {
   attendanceSessions AttendanceSession[]
   homeworks          Homework[]
   payrollRecords     PayrollRecord[]
+  leaves             StaffLeave[]
+  attendances        StaffAttendance[]
+  appraisals         StaffAppraisal[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, employeeCode])
@@ -505,15 +533,24 @@ model Staff {
 }
 
 model Student {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId        String    @map("tenant_id") @db.Uuid
-  userId          String?   @map("user_id") @db.Uuid
-  branchId        String    @map("branch_id") @db.Uuid
-  admissionNumber String    @map("admission_number") @db.VarChar(64)
-  dob             DateTime  @db.Date
-  gender          String    @db.VarChar(16)
-  bloodGroup      String?   @map("blood_group") @db.VarChar(8)
-  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String        @map("tenant_id") @db.Uuid
+  userId          String?       @map("user_id") @db.Uuid
+  branchId        String        @map("branch_id") @db.Uuid
+  admissionNumber String        @map("admission_number") @db.VarChar(64)
+  firstName       String        @default("") @map("first_name") @db.VarChar(128)
+  lastName        String        @default("") @map("last_name") @db.VarChar(128)
+  dob             DateTime      @db.Date
+  gender          String        @db.VarChar(16)
+  bloodGroup      String?       @map("blood_group") @db.VarChar(8)
+  phone           String?       @db.VarChar(32)
+  email           String?       @db.VarChar(255)
+  address         String?       @db.Text
+  photoUrl        String?       @map("photo_url") @db.Text
+  admissionDate   DateTime      @default(now()) @map("admission_date") @db.Date
+  status          StudentStatus @default(ACTIVE)
+  deletedAt       DateTime?     @map("deleted_at") @db.Timestamptz
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
 
   tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user                  User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -528,6 +565,7 @@ model Student {
   reportCards           ReportCard[]
   studentInvoices       StudentInvoice[]
   infirmaryVisits       InfirmaryVisit[]
+  examSeats             ExamSeat[]
 
   @@unique([tenantId, id])
   @@unique([tenantId, admissionNumber])
@@ -771,6 +809,7 @@ model Exam {
   academicYear AcademicYear  @relation(fields: [tenantId, academicYearId], references: [tenantId, id], onDelete: Cascade)
   examSubjects ExamSubject[]
   reportCards  ReportCard[]
+  seats        ExamSeat[]
 
   @@unique([tenantId, id])
   @@index([tenantId])
@@ -974,15 +1013,19 @@ model FeePayment {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenantId       String   @map("tenant_id") @db.Uuid
   idempotencyKey String   @unique @map("idempotency_key") @db.VarChar(255)
+  receiptNumber  String?  @map("receipt_number") @db.VarChar(64)
   amount         Decimal  @db.Decimal(12, 2)
   paymentMethod  String   @map("payment_method") @db.VarChar(32)
   gatewayRef     String?  @map("gateway_ref") @db.VarChar(128)
+  remarks        String?  @db.Text
+  collectedById  String?  @map("collected_by_id") @db.Uuid
   paidAt         DateTime @default(now()) @map("paid_at") @db.Timestamptz
 
   tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   allocations FeePaymentAllocation[]
   refunds     FeeRefund[]
 
+  @@unique([tenantId, receiptNumber])
   @@index([tenantId])
   @@map("fee_payments")
 }
@@ -1145,6 +1188,9 @@ model Notice {
   title       String    @db.VarChar(255)
   content     String    @db.Text
   targetRole  String    @default("ALL") @map("target_role") @db.VarChar(32)
+  priority    String    @default("INFO") @db.VarChar(16)
+  status      String    @default("PUBLISHED") @db.VarChar(16)
+  createdById String?   @map("created_by_id") @db.Uuid
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
   publishedAt DateTime  @default(now()) @map("published_at") @db.Timestamptz
 
@@ -1194,4 +1240,129 @@ model TenantAuditLog {
   @@index([tenantId, userId])
   @@index([tenantId, createdAt])
   @@map("tenant_audit_logs")
+}
+
+// ============================================================================
+// 13. HR EXTENSIONS: STAFF LEAVE, STAFF ATTENDANCE & APPRAISALS
+// ============================================================================
+
+model StaffLeave {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String      @map("tenant_id") @db.Uuid
+  staffId      String      @map("staff_id") @db.Uuid
+  leaveType    String      @map("leave_type") @db.VarChar(32)
+  startDate    DateTime    @map("start_date") @db.Date
+  endDate      DateTime    @map("end_date") @db.Date
+  reason       String      @db.Text
+  status       LeaveStatus @default(PENDING)
+  actionReason String?     @map("action_reason") @db.Text
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff  Staff  @relation(fields: [tenantId, staffId], references: [tenantId, id], onDelete: Cascade)
+
+  @@index([tenantId, staffId])
+  @@index([tenantId, status])
+  @@map("staff_leaves")
+}
+
+model StaffAttendance {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String           @map("tenant_id") @db.Uuid
+  staffId        String           @map("staff_id") @db.Uuid
+  attendanceDate DateTime         @map("attendance_date") @db.Date
+  checkIn        DateTime?        @map("check_in") @db.Timestamptz
+  checkOut       DateTime?        @map("check_out") @db.Timestamptz
+  status         AttendanceStatus @default(PRESENT)
+  remarks        String?          @db.Text
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff  Staff  @relation(fields: [tenantId, staffId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, staffId, attendanceDate])
+  @@index([tenantId, attendanceDate])
+  @@map("staff_attendance")
+}
+
+model StaffAppraisal {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
+  staffId    String    @map("staff_id") @db.Uuid
+  period     String    @db.VarChar(32)
+  rating     Decimal?  @db.Decimal(3, 1)
+  remarks    String?   @db.Text
+  status     String    @default("PENDING") @db.VarChar(16)
+  reviewedAt DateTime? @map("reviewed_at") @db.Timestamptz
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff  Staff  @relation(fields: [tenantId, staffId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, staffId, period])
+  @@index([tenantId])
+  @@map("staff_appraisals")
+}
+
+// ============================================================================
+// 14. ADMISSIONS PIPELINE
+// ============================================================================
+
+enum AdmissionStage {
+  ENQUIRY
+  DOCUMENT_VERIFICATION
+  ENTRANCE_TEST
+  OFFER_SENT
+  ADMITTED
+  WAITLISTED
+  REJECTED
+}
+
+model AdmissionEnquiry {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String         @map("tenant_id") @db.Uuid
+  studentName  String         @map("student_name") @db.VarChar(255)
+  parentName   String?        @map("parent_name") @db.VarChar(255)
+  phone        String         @db.VarChar(32)
+  email        String?        @db.VarChar(255)
+  dob          DateTime?      @db.Date
+  gender       String?        @db.VarChar(16)
+  classApplied String         @map("class_applied") @db.VarChar(64)
+  source       String         @default("WALK_IN") @db.VarChar(32)
+  stage        AdmissionStage @default(ENQUIRY)
+  testDate     DateTime?      @map("test_date") @db.Timestamptz
+  testScore    Decimal?       @map("test_score") @db.Decimal(5, 2)
+  notes        String?        @db.Text
+  studentId    String?        @map("student_id") @db.Uuid
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, stage])
+  @@map("admission_enquiries")
+}
+
+// ============================================================================
+// 15. EXAM SEATING (DESK SLIPS)
+// ============================================================================
+
+model ExamSeat {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  examId     String   @map("exam_id") @db.Uuid
+  studentId  String   @map("student_id") @db.Uuid
+  roomNumber String   @map("room_number") @db.VarChar(32)
+  seatNumber String   @map("seat_number") @db.VarChar(16)
+  status     String   @default("GENERATED") @db.VarChar(16)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [tenantId, studentId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([examId, studentId])
+  @@unique([examId, roomNumber, seatNumber])
+  @@index([tenantId, examId])
+  @@map("exam_seats")
 }

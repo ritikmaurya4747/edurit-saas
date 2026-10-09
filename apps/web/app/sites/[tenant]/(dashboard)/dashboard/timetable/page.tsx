@@ -1,10 +1,8 @@
-import React from 'react'
-import TimetableLayout from './components/TimetableLayout'
+import type { Metadata } from "next";
+import TimetablePage from "./components/TimetablePage";
 
-const page = () => {
-  return (
-    <TimetableLayout />
-  )
-}
+export const metadata: Metadata = { title: "Timetable" };
 
-export default page
+const page = () => <TimetablePage />;
+
+export default page;

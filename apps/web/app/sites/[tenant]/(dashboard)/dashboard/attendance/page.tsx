@@ -1,10 +1,8 @@
-import React from 'react'
-import AttendanceLayout from './components/AttendanceLayout'
+import type { Metadata } from "next";
+import AttendancePage from "./components/AttendancePage";
 
-const page = () => {
-  return (
-    <AttendanceLayout />
-  )
-}
+export const metadata: Metadata = { title: "Attendance" };
 
-export default page
+const page = () => <AttendancePage />;
+
+export default page;

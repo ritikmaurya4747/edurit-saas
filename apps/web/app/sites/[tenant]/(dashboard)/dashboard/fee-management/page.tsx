@@ -1,10 +1,8 @@
-import React from 'react'
-import FeePage from './components/FeePage'
+import type { Metadata } from "next";
+import FeePage from "./components/FeePage";
 
-const page = () => {
-  return (
-    <FeePage />
-  )
-}
+export const metadata: Metadata = { title: "Fee Management" };
 
-export default page
+const page = () => <FeePage />;
+
+export default page;

@@ -1,54 +1,52 @@
 "use client";
-import React, { useMemo } from 'react';
-import { ColumnDef, DataTable } from '@repo/ui';
-import { SubjectGrade } from '../data/reportCardData'; 
 
-const GradesTable = ({ subjects }: { subjects: SubjectGrade[] }) => {
-  
-  const columns = useMemo<ColumnDef<SubjectGrade>[]>(() => [
-    {
-      accessorKey: 'subject',
-      header: 'Subject',
-      cell: ({ row }) => (
-        <span className="font-semibold">{row.original.subject}</span>
-      ),
-    },
-    {
-      accessorKey: 'totalMarks',
-      header: 'Total Marks',
-      cell: ({ row }) => (
-        <div className="text-center">{row.original.totalMarks}</div>
-      ),
-    },
-    {
-      accessorKey: 'obtainedMarks',
-      header: 'Obtained',
-      cell: ({ row }) => (
-        <div className="text-center font-bold text-gray-900">
-          {row.original.obtainedMarks}
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'grade',
-      header: 'Grade',
-      cell: ({ row }) => (
-        <div className="text-center font-bold text-indigo-700">
-          {row.original.grade}
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'remarks',
-      header: 'Remarks',
-      cell: ({ row }) => (
-        <span className="text-gray-600 text-sm">{row.original.remarks}</span>
-      ),
-    },
-  ], []);
+import { useMemo } from "react";
+import { DataTable, type ColumnDef } from "@repo/ui";
+import { fmtMarks, type ReportCardDetail } from "../../exams/api";
+
+type SubjectRow = ReportCardDetail["subjects"][number];
+
+const GradesTable = ({ subjects }: { subjects: SubjectRow[] }) => {
+  const columns = useMemo<ColumnDef<SubjectRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Subject",
+        cell: ({ row }) => <span className="font-semibold text-gray-900">{row.original.name}</span>,
+      },
+      {
+        accessorKey: "maxMarks",
+        header: "Max Marks",
+        cell: ({ row }) => <div className="text-center">{fmtMarks(row.original.maxMarks)}</div>,
+      },
+      {
+        accessorKey: "marksObtained",
+        header: "Obtained",
+        cell: ({ row }) => {
+          const { marksObtained, passed } = row.original;
+          return (
+            <div className={`text-center font-bold ${marksObtained === null ? "text-gray-400" : passed ? "text-gray-900" : "text-red-600"}`}>
+              {marksObtained === null ? "AB" : fmtMarks(marksObtained)}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "grade",
+        header: "Grade",
+        cell: ({ row }) => <div className="text-center font-bold text-indigo-700">{row.original.grade ?? "—"}</div>,
+      },
+      {
+        accessorKey: "remarks",
+        header: "Remarks",
+        cell: ({ row }) => <span className="text-sm text-gray-600">{row.original.remarks || ""}</span>,
+      },
+    ],
+    [],
+  );
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 print-avoid-break">
       <DataTable columns={columns} data={subjects} />
     </div>
   );

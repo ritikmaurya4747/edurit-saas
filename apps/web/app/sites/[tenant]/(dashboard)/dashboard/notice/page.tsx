@@ -1,10 +1,8 @@
-import React from 'react'
-import NoticeBoardPage from './components/NoticeBoardPage'
+import type { Metadata } from "next";
+import NoticeBoardPage from "./components/NoticeBoardPage";
 
-const page = () => {
-    return (
-        <NoticeBoardPage />
-    )
-}
+export const metadata: Metadata = { title: "Notice Board" };
 
-export default page
+const page = () => <NoticeBoardPage />;
+
+export default page;

@@ -1,85 +1,105 @@
 "use client";
 
-import { Student, AttendanceStatus } from '../data/attendanceData';
+import { Phone } from "lucide-react";
+import { Badge } from "@/components/ui";
+import { humanize } from "@/lib/utils/format";
+import { STATUSES, type AttendanceStatus, type RosterStudent } from "../types";
 
-interface AttendanceListProps {
-  students: Student[];
-  onStatusChange: (id: string, status: AttendanceStatus) => void;
+export interface RowMark {
+  status: AttendanceStatus | null;
+  remarks: string;
 }
 
-const AttendanceList = ({ students, onStatusChange }: AttendanceListProps) => {
-  const statuses: AttendanceStatus[] = ['Present', 'Absent', 'Late', 'Half-day'];
+interface AttendanceListProps {
+  students: RosterStudent[];
+  marks: Record<string, RowMark>;
+  onStatusChange: (studentId: string, status: AttendanceStatus) => void;
+  onRemarksChange: (studentId: string, remarks: string) => void;
+  disabled?: boolean;
+}
 
-  const getStatusStyle = (isActive: boolean, status: AttendanceStatus) => {
-    if (!isActive) {
-      return 'border-gray-200 text-gray-500 bg-white hover:bg-gray-50';
-    }
-    if (status === 'Present') return 'border-green-600 bg-green-600 text-white';
-    if (status === 'Absent') return 'border-red-600 bg-red-600 text-white';
-    if (status === 'Late') return 'border-yellow-500 bg-yellow-500 text-white';
-    return 'border-orange-500 bg-orange-500 text-white';
-  };
+const activeStyle: Record<AttendanceStatus, string> = {
+  PRESENT: "border-green-600 bg-green-600 text-white",
+  ABSENT: "border-red-600 bg-red-600 text-white",
+  LATE: "border-yellow-500 bg-yellow-500 text-white",
+  EXCUSED: "border-purple-600 bg-purple-600 text-white",
+};
 
-  return (
-    <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
-            <th className="text-left px-4 py-3 font-bold text-gray-700">Roll No</th>
-            <th className="text-left px-4 py-3 font-bold text-gray-700">Student Name</th>
-            <th className="text-left px-4 py-3 font-bold text-gray-700">Attendance Status</th>
-            <th className="text-left px-4 py-3 font-bold text-gray-700">Emergency</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student) => (
-            <tr key={student.id} className="border-b border-gray-100 hover:bg-gray-50">
-              <td className="px-4 py-3 font-medium">{student.rollNo}</td>
-              <td className="px-4 py-3 font-bold text-gray-900">{student.name}</td>
+const AttendanceList = ({ students, marks, onStatusChange, onRemarksChange, disabled }: AttendanceListProps) => (
+  <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+    <table className="w-full min-w-180 text-sm">
+      <thead>
+        <tr className="border-b border-gray-200 bg-[#FCFBF8]">
+          <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Roll</th>
+          <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Student</th>
+          <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+          <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Remarks</th>
+          <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-gray-400">Guardian</th>
+        </tr>
+      </thead>
+      <tbody>
+        {students.map((student) => {
+          const mark = marks[student.studentId] ?? { status: null, remarks: "" };
+          return (
+            <tr key={student.studentId} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50">
+              <td className="w-16 px-4 py-3 font-medium text-gray-600">{student.rollNumber ?? "—"}</td>
               <td className="px-4 py-3">
-                <div className="flex gap-2 flex-wrap">
-                  {statuses.map((status) => (
+                <div className="font-bold text-gray-900">{student.name}</div>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  {student.admissionNumber}
+                  {student.onLeave && (
+                    <Badge tone="purple" className="px-1.5 py-0.5 text-[10px]">
+                      On approved leave
+                    </Badge>
+                  )}
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex flex-wrap gap-2">
+                  {STATUSES.map((status) => (
                     <button
                       key={status}
-                      onClick={() => onStatusChange(student.id, status)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 border cursor-pointer ${getStatusStyle(
-                        student.status === status,
-                        status
-                      )}`}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => onStatusChange(student.studentId, status)}
+                      className={`cursor-pointer rounded-md border px-3 py-1.5 text-xs font-bold transition-all duration-200 disabled:cursor-not-allowed ${
+                        mark.status === status ? activeStyle[status] : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                      }`}
                     >
-                      {status}
+                      {humanize(status)}
                     </button>
                   ))}
                 </div>
               </td>
               <td className="px-4 py-3">
-                <a
-                  href={`tel:${student.parentContact}`}
-                  className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#C96860"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                <input
+                  value={mark.remarks}
+                  disabled={disabled}
+                  onChange={(e) => onRemarksChange(student.studentId, e.target.value)}
+                  placeholder="Optional"
+                  maxLength={500}
+                  className="w-full min-w-35 rounded-md border border-gray-200 px-2 py-1.5 text-xs outline-none focus:border-[#1C263A] disabled:bg-gray-50"
+                />
+              </td>
+              <td className="px-4 py-3 text-center">
+                {student.guardianPhone ? (
+                  <a
+                    href={`tel:${student.guardianPhone}`}
+                    title={`Call ${student.name}'s guardian (${student.guardianPhone})`}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#EBE3D8] transition-colors hover:bg-[#FDFBF9]"
                   >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    <path d="M14.05 2a9 9 0 0 1 8 7.94" />
-                    <path d="M14.05 6A5 5 0 0 1 18 10" />
-                  </svg>
-                </a>
+                    <Phone className="h-4 w-4 text-[#C96860]" />
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-300">—</span>
+                )}
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+);
 
 export default AttendanceList;

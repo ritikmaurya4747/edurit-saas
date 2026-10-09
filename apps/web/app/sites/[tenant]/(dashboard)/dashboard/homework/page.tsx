@@ -1,10 +1,8 @@
-import React from 'react'
-import HomeworkLayout from './components/HomeworkLayout'
+import type { Metadata } from "next";
+import HomeworkPage from "./components/HomeworkPage";
 
-const page = () => {
-  return (
-    <HomeworkLayout/>
-  )
-}
+export const metadata: Metadata = { title: "Homework" };
 
-export default page
+const page = () => <HomeworkPage />;
+
+export default page;

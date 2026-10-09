@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sidebarData } from "../../../config/sidebarData";
+import { filterSidebar, isSidebarItemActive } from "@/config/sidebarData";
+import { useCan } from "@/lib/auth/permissions";
 
 interface DashboardSidebarProps {
   isSidebarOpen: boolean;
@@ -10,6 +11,8 @@ interface DashboardSidebarProps {
 
 const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
   const pathname = usePathname();
+  const can = useCan();
+  const sections = filterSidebar(can);
 
   const fade = `transition-opacity duration-200 ease-in-out ${isSidebarOpen ? "opacity-100 delay-100" : "opacity-0 pointer-events-none"
     }`;
@@ -31,7 +34,7 @@ const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
 
         {/* Nav Items */}
         <div className="flex flex-col py-5 overflow-y-auto overflow-x-hidden px-2">
-          {sidebarData.map((section, sectionIndex) => (
+          {sections.map((section, sectionIndex) => (
             <div
               key={section.section}
               className={`transition-[margin,padding] duration-300 ease-in-out ${sectionIndex === 0
@@ -52,7 +55,7 @@ const DashboardSidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
 
               <div className="flex flex-col gap-1">
                 {section.items.map((item, index) => {
-                  const isActive = pathname === item.url;
+                  const isActive = isSidebarItemActive(pathname, item.url);
 
                   return (
                     <Link

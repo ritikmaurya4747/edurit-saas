@@ -1,41 +1,60 @@
-import React from 'react';
-import { Homework } from '../data/homeworkData';
+"use client";
 
-const HomeworkCard = ({ subject, title, teacher, dueDate, status, description }: Homework) => {
-  // Dynamic styles based on status
-  const statusStyles = {
-    Pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    Completed: 'bg-green-50 text-green-700 border-green-200',
-    Overdue: 'bg-red-50 text-red-700 border-red-200',
-  };
+import { formatDateTime } from "@/lib/utils/format";
+import { isOverdue, type HomeworkItem } from "../types";
+
+const HomeworkCard = ({ homework, onOpen }: { homework: HomeworkItem; onOpen: (id: string) => void }) => {
+  const overdue = isOverdue(homework.dueDate);
+  const { totalStudents, submitted, graded } = homework.counts;
+  const progress = totalStudents ? Math.min(100, Math.round((submitted / totalStudents) * 100)) : 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
-      <div className="flex justify-between items-start mb-3">
-        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-          {subject}
+    <button
+      type="button"
+      onClick={() => onOpen(homework.id)}
+      className="flex h-full cursor-pointer flex-col rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-shadow duration-200 hover:shadow-md"
+    >
+      <div className="mb-3 flex w-full items-start justify-between gap-2">
+        <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold uppercase tracking-wider text-blue-600">
+          {homework.subject.name}
         </span>
-        <span className={`text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full border ${statusStyles[status]}`}>
-          {status}
+        <span
+          className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold sm:text-xs ${
+            overdue ? "border-gray-200 bg-gray-50 text-gray-600" : "border-yellow-200 bg-yellow-50 text-yellow-700"
+          }`}
+        >
+          {homework.section.label}
         </span>
       </div>
-      
-      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4 flex-grow line-clamp-3">{description}</p>
-      
-      <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
+
+      <h3 className="mb-2 line-clamp-2 text-lg font-bold text-gray-900">{homework.title}</h3>
+      <p className="mb-4 line-clamp-3 grow text-sm text-gray-500">{homework.description}</p>
+
+      <div className="mb-4 w-full">
+        <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
+          <span>
+            {submitted}/{totalStudents} submitted
+          </span>
+          {graded > 0 && <span>{graded} graded</span>}
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="h-full rounded-full bg-[#1C263A]" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <div className="mt-auto flex w-full items-center justify-between border-t border-gray-100 pt-4">
         <div className="flex flex-col">
-          <span className="text-[10px] sm:text-xs text-gray-400 font-medium">ASSIGNED BY</span>
-          <span className="text-xs sm:text-sm font-semibold text-gray-700">{teacher}</span>
+          <span className="text-[10px] font-medium text-gray-400 sm:text-xs">ASSIGNED BY</span>
+          <span className="text-xs font-semibold text-gray-700 sm:text-sm">{homework.staff.name || "—"}</span>
         </div>
         <div className="flex flex-col text-right">
-          <span className="text-[10px] sm:text-xs text-gray-400 font-medium">DUE DATE</span>
-          <span className={`text-xs sm:text-sm font-semibold ${status === 'Overdue' ? 'text-red-600' : 'text-gray-700'}`}>
-            {new Date(dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+          <span className="text-[10px] font-medium text-gray-400 sm:text-xs">{overdue ? "WAS DUE" : "DUE"}</span>
+          <span className={`text-xs font-semibold sm:text-sm ${overdue ? "text-red-600" : "text-gray-700"}`}>
+            {formatDateTime(homework.dueDate)}
           </span>
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

@@ -1,66 +1,60 @@
-import React from 'react';
-import { Student } from '../data/attendanceData';
+"use client";
 
-interface HeaderProps {
-  students: Student[];
-  onMarkAll: (status: 'Present' | 'Absent') => void;
+import { formatDate } from "@/lib/utils/format";
+import type { StatusCounts } from "../types";
+
+interface AttendanceHeaderProps {
+  sectionLabel: string;
+  date: string;
+  total: number;
+  counts: StatusCounts;
+  unmarked: number;
+  onMarkAllPresent?: () => void;
 }
 
-const AttendanceHeader = ({ students, onMarkAll }: HeaderProps) => {
-  const total = students.length;
-  const present = students.filter(s => s.status === 'Present').length;
-  const absent = students.filter(s => s.status === 'Absent').length;
+const Pill = ({ value, label, className }: { value: number; label: string; className: string }) => (
+  <div className={`flex min-w-14.5 flex-col items-center rounded-lg px-3 py-1 ${className}`}>
+    <span className="text-lg font-bold">{value}</span>
+    <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+  </div>
+);
 
-  // Format today's date
-  const today = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
+// Live counts for the roster being marked, with the bulk "Mark all present" action.
+const AttendanceHeader = ({ sectionLabel, date, total, counts, unmarked, onMarkAllPresent }: AttendanceHeaderProps) => (
+  <div className="mb-4 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:p-6 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h2 className="mb-1 font-serif text-xl font-bold text-gray-900 md:text-2xl">Daily Attendance</h2>
+      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-600">
+        <span className="rounded bg-gray-100 px-2 py-1">{sectionLabel}</span>
+        <span>•</span>
+        <span>{formatDate(date, true)}</span>
+      </div>
+    </div>
 
-  return (
-    <div className="mb-6 bg-white p-5 md:p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-4">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-1">Daily Attendance</h1>
-        <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-          <span className="bg-gray-100 px-2 py-1 rounded">Class 8 - B</span>
-          <span>•</span>
-          <span>{today}</span>
-        </div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-wrap gap-2 text-sm">
+        <Pill value={total} label="Total" className="bg-blue-50 text-blue-700" />
+        <Pill value={counts.present} label="Present" className="bg-green-50 text-green-700" />
+        <Pill value={counts.absent} label="Absent" className="bg-red-50 text-red-700" />
+        <Pill value={counts.late} label="Late" className="bg-yellow-50 text-yellow-700" />
+        <Pill value={counts.excused} label="Excused" className="bg-purple-50 text-purple-700" />
+        {unmarked > 0 && <Pill value={unmarked} label="Unmarked" className="bg-gray-100 text-gray-600" />}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-        {/* Real-time Summary */}
-        <div className="flex gap-3 text-sm">
-          <div className="flex flex-col items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-lg">
-            <span className="font-bold text-lg">{total}</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider">Total</span>
-          </div>
-          <div className="flex flex-col items-center px-3 py-1 bg-green-50 text-green-700 rounded-lg">
-            <span className="font-bold text-lg">{present}</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider">Present</span>
-          </div>
-          <div className="flex flex-col items-center px-3 py-1 bg-red-50 text-red-700 rounded-lg">
-            <span className="font-bold text-lg">{absent}</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider">Absent</span>
-          </div>
-        </div>
-
-        <div className="h-px sm:h-10 w-full sm:w-px bg-gray-200 hidden sm:block"></div>
-
-        {/* Quick Actions */}
-        <div className="flex gap-2">
-          <button 
-            onClick={() => onMarkAll('Present')}
-            className="text-xs font-bold text-green-700 bg-green-50 hover:bg-green-100 px-3 py-2 rounded-md transition-colors border border-green-200"
+      {onMarkAllPresent && (
+        <>
+          <div className="hidden h-10 w-px bg-gray-200 sm:block" />
+          <button
+            type="button"
+            onClick={onMarkAllPresent}
+            className="cursor-pointer rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs font-bold text-green-700 transition-colors hover:bg-green-100"
           >
             Mark All Present
           </button>
-        </div>
-      </div>
+        </>
+      )}
     </div>
-  );
-};
+  </div>
+);
 
 export default AttendanceHeader;

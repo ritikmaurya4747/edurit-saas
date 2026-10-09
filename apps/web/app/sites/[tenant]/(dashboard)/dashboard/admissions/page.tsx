@@ -1,9 +1,8 @@
-import AdmissionsLayout from './components/AdmissionsLayout'
+import type { Metadata } from "next";
+import AdmissionsPage from "./components/AdmissionsPage";
 
-const page = () => {
-  return (
-    <AdmissionsLayout />
-  )
-}
+export const metadata: Metadata = { title: "Admissions" };
 
-export default page
+const page = () => <AdmissionsPage />;
+
+export default page;
