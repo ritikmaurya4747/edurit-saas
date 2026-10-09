@@ -18,6 +18,7 @@ pnpm add clsx --filter @repo/ui
 pnpm add -Dw <package-name>
 -w = install at workspace root, not inside any app.
 
+
 # After Pulling New Changes / Fresh Clone
 cd edurit-saas
 pnpm install
