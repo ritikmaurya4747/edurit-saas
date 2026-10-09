@@ -1,3 +1,4 @@
+import * as prismaClientModule from '../generated/client/index.js';
 import { PrismaClient } from '../generated/client/index.js';
 
 export * from '../generated/client/index.js';
@@ -194,3 +195,20 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
   STUDENT: [P.ACADEMIC_READ, P.HOMEWORK_READ, P.EXAM_READ, P.NOTICE_READ],
   PARENT: [P.ACADEMIC_READ, P.HOMEWORK_READ, P.EXAM_READ, P.NOTICE_READ],
 };
+
+// Node >= 23 require(esm): when an ES module has an export named "module.exports",
+// require() returns that value instead of the module namespace. `export *` above
+// re-exports the CommonJS Prisma client's own "module.exports", so on Node 23+
+// require('@edurit/database') would return only the Prisma client and every
+// export defined in this file (PERMISSIONS, prisma, ...) would be undefined.
+// An explicit local export takes precedence over the star re-export.
+const cjsExports = {
+  ...prismaClientModule,
+  prisma,
+  PERMISSIONS,
+  PERMISSION_CATALOGUE,
+  ADMIN_ROLE_CODE,
+  SYSTEM_ROLES,
+  DEFAULT_ROLE_PERMISSIONS,
+};
+export { cjsExports as 'module.exports' };
